@@ -437,24 +437,6 @@ const PropertiesFetch = () => {
           </Link>
         </div>
 
-        {/* Search Bar */}
-        <form onSubmit={e => { e.preventDefault(); handleSearch(); }} className="bg-background border border-primary/20 p-2 rounded-2xl md:rounded-full flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-4 max-w-4xl mx-auto w-full relative group hover:border-accent transition-colors">
-          <div className="flex items-center gap-2 flex-1 px-2 md:px-0">
-            <div className="p-3 md:p-4 text-primary group-hover:text-accent transition-colors shrink-0">
-              <Search size={24} strokeWidth={1.5} />
-            </div>
-            <input
-              type="text"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Buscá por nombre, ubicación o estado..."
-              className="flex-1 bg-transparent border-none outline-none font-heading text-base md:text-lg text-primary placeholder:text-dark/30 min-w-0"
-            />
-          </div>
-          <button type="submit" className="bg-primary text-white px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-full font-heading font-bold shadow-sm hover:scale-[1.02] border border-primary hover:border-accent transition-all">
-            Buscar
-          </button>
-        </form>
 
         {/* Tokko Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
