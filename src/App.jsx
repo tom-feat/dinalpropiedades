@@ -344,7 +344,8 @@ const PropertiesFetch = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://tokkobroker.com/api/v1/property/?key=5c7ee296684b34a6ac22ab137cab886db9f0be13&lang=es_ar&format=json&limit=6')
+    // Using environment variable to protect the API key
+    fetch(`https://tokkobroker.com/api/v1/property/?key=${import.meta.env.VITE_TOKKO_API_KEY}&lang=es_ar&format=json&limit=6`)
       .then(res => res.json())
       .then(data => {
         if(data && data.objects) setProperties(data.objects);
