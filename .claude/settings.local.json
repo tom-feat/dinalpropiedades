@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.unitedpropias.com)",
+      "WebSearch",
+      "WebFetch(domain:www.dinalpropiedades.com.ar)",
+      "WebFetch(domain:www.dinalpropiedades.com)",
+      "Bash(npm install:*)",
+      "Bash(unzip -l \"drive-download-20260410T124326Z-3-001.zip\")"
+    ]
+  }
+}

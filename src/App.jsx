@@ -1,10 +1,49 @@
-import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { useEffect, useRef, useState, useLayoutEffect, createContext, useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Building, MapPin, Compass, Search, Phone, Mail, ArrowRight, Menu, X, Clock, Bed, Bath } from 'lucide-react';
+import { Building, MapPin, Compass, Search, Phone, Mail, ArrowRight, Menu, X, Clock, Bed, Bath, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const PropertyCtx = createContext({ address: null, setAddress: () => {} });
+
+// ------------------------------------
+// Cache-first data fetcher
+// Tries the local JSON file written by the daily sync script first,
+// then falls back to the live Tokko API if the cache is empty or stale.
+// ------------------------------------
+async function fetchWithCache(cacheUrl, apiUrl) {
+  try {
+    const res = await fetch(cacheUrl);
+    if (!res.ok) throw new Error('cache miss');
+    const data = await res.json();
+    const arr = Array.isArray(data) ? data : (data.objects ?? []);
+    if (arr.length === 0) throw new Error('empty cache');
+    return arr;
+  } catch {
+    const res = await fetch(apiUrl);
+    const data = await res.json();
+    return data.objects ?? [];
+  }
+}
 
 gsap.registerPlugin(ScrollTrigger);
+
+function slugify(str) {
+  return (str ?? '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+}
+
+function propSlug(item) {
+  const title = item.publication_title ?? item.name ?? '';
+  const addr  = item.fake_address ?? '';
+  const text  = addr ? `${title} ${addr}` : title;
+  return `${item.id}-${slugify(text)}`.slice(0, 100);
+}
 
 // ----------------------------------------------------
 // A. NAVBAR
@@ -18,8 +57,9 @@ const Navbar = () => {
   const isAlquilerPage = location.pathname === '/alquiler';
   const isVentaPage = location.pathname === '/venta';
   const isSucursalesPage = location.pathname === '/sucursales';
+  const isDetailPage = location.pathname.startsWith('/propiedad');
 
-  const isDarkNav = scrolled || isContactPage || isEmprendimientosPage || isAlquilerPage || isVentaPage || isSucursalesPage;
+  const isDarkNav = scrolled || isContactPage || isEmprendimientosPage || isAlquilerPage || isVentaPage || isSucursalesPage || isDetailPage;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -99,9 +139,9 @@ const Hero = () => {
   return (
     <section ref={containerRef} className="relative h-[100dvh] w-full flex items-end pb-24 lg:pb-32 px-6 lg:px-12 object-cover overflow-hidden bg-primary">
       <div className="absolute inset-0 z-0">
-        <img 
-          src="/images/Size%20Optimized/_MG_1091.jpg"
-          alt="Modern Architecture"
+        <img
+          src="/images/Size%20Optimized/COnstrucciòn%202%20(1)%20(1).jpg"
+          alt="Construcción en San Martín"
           className="w-full h-full object-cover scale-105 origin-center opacity-80"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/80 to-transparent"></div>
@@ -109,21 +149,20 @@ const Hero = () => {
 
       <div className="relative z-10 w-full max-w-6xl mx-auto">
         <h1 className="text-background flex flex-col gap-4">
-          <span className="hero-element font-heading font-medium text-3xl md:text-5xl lg:text-5xl tracking-tight">Espacios visionarios para la</span>
-          {/* Relaxed leading and removed fixed heights to prevent text overlap on wrap */}
-          <span className="hero-element font-drama text-5xl md:text-7xl lg:text-8xl leading-none md:leading-[1.1] text-white drop-shadow-md pb-4">
-            vanguardia moderna.
+          <span className="hero-element font-drama font-black text-5xl md:text-7xl lg:text-8xl leading-none md:leading-[1.1] text-white drop-shadow-md pb-2">
+            <span className="font-normal">Cumplimos con Vos,</span> Siempre.
             <div className="h-1 w-24 bg-accent mt-8 mb-2"></div>
           </span>
+          <span className="hero-element font-heading font-normal italic text-2xl md:text-3xl text-background/90">+80 proyectos en San Martín</span>
         </h1>
         <p className="hero-element mt-6 text-background/80 font-heading text-lg max-w-xl">
           Impulsamos tus proyectos con la energía de un equipo joven y la solidez de más de 30 años construyendo hogares de calidad.
         </p>
         <div className="hero-element mt-10">
-          <button className="group flex items-center gap-4 border border-white text-white px-8 py-4 rounded-full font-heading font-bold text-lg hover:border-accent hover:text-accent hover:scale-[1.02] transition-all duration-300">
+          <a href="#propiedades" className="group inline-flex items-center gap-4 border border-white text-white px-8 py-4 rounded-full font-heading font-bold text-lg hover:border-accent hover:text-accent hover:scale-[1.02] transition-all duration-300">
             Encontrá tu propiedad
             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-          </button>
+          </a>
         </div>
       </div>
     </section>
@@ -149,7 +188,7 @@ const Features = () => {
               Solidez confirmada. Más de tres décadas construyendo confianza y hogares de calidad en el mercado inmobiliario.
             </p>
           </div>
-          <div className="font-data text-dark/40 group-hover:text-accent transition-colors text-xs tracking-widest uppercase border-t border-primary/10 pt-4">
+          <div className="font-data text-dark/40 text-xs tracking-widest uppercase border-t border-primary/10 pt-4">
             // Base de Confianza
           </div>
         </div>
@@ -185,7 +224,7 @@ const Features = () => {
               Un equipo proactivo y herramientas tecnológicas totalmente integradas para acelerar tus proyectos.
             </p>
           </div>
-          <div className="font-data text-dark/40 group-hover:text-accent transition-colors text-xs tracking-widest uppercase border-t border-primary/10 pt-4">
+          <div className="font-data text-dark/40 text-xs tracking-widest uppercase border-t border-primary/10 pt-4">
             // Impulsado por Tecnología
           </div>
         </div>
@@ -264,19 +303,22 @@ const Categories = () => {
       title: "Casas & Residencias",
       desc: "Espacios diseñados para habitar y disfrutar. Conectando familias con su lugar ideal en el mundo.",
       img: "/images/Size%20Optimized/_MG_1702.jpg",
-      tags: ["+150 Disponibles", "A Estrenar", "Barrios Cerrados"]
+      tags: ["+150 Disponibles", "A Estrenar", "Barrios Cerrados"],
+      link: "/venta"
     },
     {
       title: "Departamentos",
       desc: "Ubicaciones estratégicas, vistas panorámicas y la comodidad de vivir a un paso de todo.",
       img: "/images/Size%20Optimized/_MG_1211.jpg",
-      tags: ["Oportunidad", "Monoambientes", "Penthouses"]
+      tags: ["Oportunidad", "Monoambientes", "Penthouses"],
+      link: "/alquiler"
     },
     {
       title: "Emprendimientos",
       desc: "Invierta en el futuro. Proyectos desde el pozo y desarrollos de vanguardia con alta rentabilidad.",
       img: "/images/Size%20Optimized/_MG_4710.jpg",
-      tags: ["Pozo", "Cuotas", "Zona Norte"]
+      tags: ["Pozo", "Cuotas", "Zona Norte"],
+      link: "/emprendimientos"
     }
   ];
 
@@ -334,10 +376,10 @@ const Categories = () => {
                 ))}
               </div>
               <div>
-                <button className="flex items-center gap-3 font-heading font-bold text-lg text-primary hover:text-accent group-hover:translate-x-2 transition-all">
+                <Link to={cat.link} className="flex items-center gap-3 font-heading font-bold text-lg text-primary hover:text-accent group-hover:translate-x-2 transition-all">
                   Explorar
                   <ArrowRight size={20} />
-                </button>
+                </Link>
               </div>
             </div>
             <div className="w-full md:w-1/2 h-full overflow-hidden relative border-l border-primary/10">
@@ -358,29 +400,27 @@ const PropertiesFetch = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Using environment variable to protect the API key
-    fetch(`https://tokkobroker.com/api/v1/property/?key=${import.meta.env.VITE_TOKKO_API_KEY}&lang=es_ar&format=json&limit=6`)
-      .then(res => res.json())
-      .then(data => {
-        if(data && data.objects) setProperties(data.objects);
-      })
-      .catch(err => console.error("Tokko API Error:", err))
-      .finally(() => setLoading(false));
+    fetchWithCache(
+      '/data/developments.json',
+      `https://tokkobroker.com/api/v1/development/?key=${import.meta.env.VITE_TOKKO_API_KEY}&lang=es_ar&format=json&limit=200`
+    ).then(all => setProperties(all.slice(0, 6)))
+     .catch(err => console.error('Developments fetch error:', err))
+     .finally(() => setLoading(false));
   }, []);
 
   return (
-    <section className="py-32 px-6 lg:px-12 bg-white relative">
+    <section id="propiedades" className="py-32 px-6 lg:px-12 bg-white relative">
       <div className="max-w-7xl mx-auto flex flex-col gap-16">
-        
+
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-primary/10 pb-8 relative group">
           <div className="absolute left-0 bottom-0 h-px w-0 bg-accent group-hover:w-full transition-all duration-1000 ease-in-out"></div>
           <div>
             <span className="font-data text-primary/40 tracking-widest text-xs mb-4 block">// ÚLTIMOS INGRESOS</span>
-            <h2 className="font-heading font-bold text-4xl lg:text-5xl text-primary">Propiedades Destacadas</h2>
+            <h2 className="font-heading font-bold text-4xl lg:text-5xl text-primary">Emprendimientos Destacados</h2>
           </div>
-          <button className="text-primary border-b border-primary hover:border-accent transition-colors font-heading font-bold pb-1">
-            Ver todas las propiedades
-          </button>
+          <Link to="/emprendimientos" className="text-primary border-b border-primary hover:border-accent transition-colors font-heading font-bold pb-1">
+            Ver todos los emprendimientos
+          </Link>
         </div>
 
         {/* Large Decorative Search Bar */}
@@ -408,28 +448,27 @@ const PropertiesFetch = () => {
             ))
           ) : (
             properties.length > 0 ? (
-              properties.map(prop => (
-                <div key={prop.id} className="bg-background rounded-[1rem] p-4 shadow-sm border border-primary/10 hover:-translate-y-2 hover:border-accent transition-all duration-300 group cursor-pointer relative">
-                  <div className="absolute top-8 right-8 z-10 bg-white/90 backdrop-blur border border-primary/10 text-primary font-heading font-bold px-3 py-1 rounded-sm text-sm">
-                    {prop.operations[0]?.prices[0]?.currency} {prop.operations[0]?.prices[0]?.price}
+              properties.map(dev => (
+                <Link key={dev.id} to={`/propiedad/${propSlug(dev)}`} className="bg-background rounded-[1rem] p-4 shadow-sm border border-primary/10 hover:-translate-y-2 hover:border-accent transition-all duration-300 group cursor-pointer relative flex flex-col block">
+                  <div className="absolute top-8 left-8 z-10 bg-primary text-white font-heading font-bold px-3 py-1 rounded-sm text-xs uppercase tracking-wider">
+                    {dev.construction_status || 'Emprendimiento'}
                   </div>
                   <div className="w-full h-[240px] rounded-lg overflow-hidden mb-6 relative">
-                    <img src={prop.photos[0]?.image || '/images/Size%20Optimized/_MG_1166.jpg'} alt={prop.publication_title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <img src={dev.photos[0]?.image || '/images/Size%20Optimized/_MG_2516.jpg'} alt={dev.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                   </div>
-                  <div className="px-2 pb-2">
-                    <h3 className="font-heading font-bold text-xl text-primary mb-1 truncate">{prop.publication_title}</h3>
-                    <p className="font-heading text-xs text-dark/50 mb-6 flex items-center gap-1"><MapPin size={14}/> {prop.location.short_location}</p>
-                    <div className="flex items-center gap-4 text-dark/70 font-heading text-sm border-t border-primary/10 pt-4">
-                      <span className="flex items-center gap-1"><Bed size={16} className="text-primary" /> {prop.room_amount || '-'} Amb</span>
-                      <span className="flex items-center gap-1"><Bath size={16} className="text-primary" /> {prop.bathroom_amount || '-'} Baños</span>
-                      <span className="flex items-center gap-1 ml-auto font-data">{prop.surface || '-'} m²</span>
+                  <div className="px-2 pb-2 flex-grow flex flex-col">
+                    <h3 className="font-heading font-bold text-xl text-primary mb-1 line-clamp-2">{dev.name}</h3>
+                    <p className="font-heading text-xs text-dark/50 mb-6 flex items-center gap-1"><MapPin size={14}/> {dev.location?.name}</p>
+                    <div className="mt-auto flex items-center justify-between border-t border-primary/10 pt-4">
+                      <span className="font-heading font-bold text-primary text-sm">Ver Proyecto</span>
+                      <ArrowRight size={16} className="text-primary group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
-                </div>
+                </Link>
               ))
             ) : (
               <p className="col-span-full text-center py-20 font-heading text-xl text-dark/50">
-                No hay propiedades disponibles en este momento.
+                No hay emprendimientos disponibles en este momento.
               </p>
             )
           )}
@@ -624,9 +663,9 @@ const Footer = () => {
           <div>
             <h4 className="font-data border-l-2 border-accent pl-3 text-white text-xs tracking-widest mb-6">CONTACTO</h4>
             <ul className="flex flex-col gap-4 font-heading text-background/60">
-              <li className="flex items-center gap-3 hover:text-accent transition-colors cursor-pointer"><Phone size={16}/> +54 9 11 7717-0405</li>
-              <li className="flex items-center gap-3 hover:text-accent transition-colors cursor-pointer"><Phone size={16}/> +54 9 11 7717-6007</li>
-              <li className="flex items-center gap-3 hover:text-accent transition-colors cursor-pointer mt-2"><Mail size={16}/> info@dinalpropiedades.com</li>
+              <li className="flex items-center gap-3"><a href="tel:+5491177170405" className="flex items-center gap-3 hover:text-accent transition-colors"><Phone size={16}/> +54 9 11 7717-0405</a></li>
+              <li className="flex items-center gap-3"><a href="tel:+5491177176007" className="flex items-center gap-3 hover:text-accent transition-colors"><Phone size={16}/> +54 9 11 7717-6007</a></li>
+              <li className="flex items-center gap-3 mt-2"><a href="mailto:info@dinalpropiedades.com" className="flex items-center gap-3 hover:text-accent transition-colors"><Mail size={16}/> info@dinalpropiedades.com</a></li>
             </ul>
           </div>
 
@@ -686,13 +725,12 @@ const Emprendimientos = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`https://tokkobroker.com/api/v1/development/?key=${import.meta.env.VITE_TOKKO_API_KEY}&lang=es_ar&format=json&limit=9`)
-      .then(res => res.json())
-      .then(data => {
-        if(data && data.objects) setDevs(data.objects);
-      })
-      .catch(err => console.error("Tokko API Error:", err))
-      .finally(() => setLoading(false));
+    fetchWithCache(
+      '/data/developments.json',
+      `https://tokkobroker.com/api/v1/development/?key=${import.meta.env.VITE_TOKKO_API_KEY}&lang=es_ar&format=json&limit=100`
+    ).then(all => setDevs(all.slice(0, 9)))
+     .catch(err => console.error('Developments fetch error:', err))
+     .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -747,7 +785,7 @@ const Emprendimientos = () => {
              ))
           ) : devs.length > 0 ? (
              devs.map(dev => (
-                 <div key={dev.id} className="emp-scroll bg-white rounded-[1rem] p-4 shadow-sm border border-primary/10 hover:shadow-xl hover:-translate-y-2 hover:border-accent transition-all duration-300 group cursor-pointer relative flex flex-col h-full">
+                 <Link key={dev.id} to={`/propiedad/${propSlug(dev)}`} className="emp-scroll bg-white rounded-[1rem] p-4 shadow-sm border border-primary/10 hover:shadow-xl hover:-translate-y-2 hover:border-accent transition-all duration-300 group cursor-pointer relative flex flex-col h-full block">
                    <div className="absolute top-8 left-8 z-10 bg-primary text-white font-heading font-bold px-3 py-1 rounded-sm text-xs uppercase tracking-wider">
                      {dev.construction_status || 'Emprendimiento'}
                    </div>
@@ -763,7 +801,7 @@ const Emprendimientos = () => {
                         <ArrowRight size={18} className="text-accent group-hover:translate-x-1 transition-transform" />
                      </div>
                    </div>
-                 </div>
+                 </Link>
              ))
           ) : (
             <div className="col-span-full py-20 text-center flex flex-col items-center">
@@ -817,16 +855,15 @@ const Alquiler = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`https://tokkobroker.com/api/v1/property/?key=${import.meta.env.VITE_TOKKO_API_KEY}&lang=es_ar&format=json&limit=40`)
-      .then(res => res.json())
-      .then(data => {
-        if(data && data.objects) {
-           const rentals = data.objects.filter(p => p.operations.some(op => op.operation_type === "Alquiler"));
-           setProperties(rentals.slice(0, 9));
-        }
+    fetchWithCache(
+      '/data/properties.json',
+      `https://tokkobroker.com/api/v1/property/?key=${import.meta.env.VITE_TOKKO_API_KEY}&lang=es_ar&format=json&limit=200`
+    ).then(all => {
+        const rentals = all.filter(p => p.operations?.some(op => op.operation_type === 'Alquiler'));
+        setProperties(rentals.slice(0, 9));
       })
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
+     .catch(err => console.error(err))
+     .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -878,7 +915,7 @@ const Alquiler = () => {
                  const op = prop.operations.find(o => o.operation_type === "Alquiler");
                  const price = op && op.prices.length > 0 ? `${op.prices[0].currency} ${op.prices[0].price}` : 'Consultar';
                  return (
-                 <div key={prop.id} className="alq-scroll bg-white rounded-[1rem] p-4 shadow-sm border border-primary/10 hover:shadow-xl hover:-translate-y-2 hover:border-accent transition-all duration-300 group cursor-pointer relative flex flex-col h-full">
+                 <Link key={prop.id} to={`/propiedad/${propSlug(prop)}`} className="alq-scroll bg-white rounded-[1rem] p-4 shadow-sm border border-primary/10 hover:shadow-xl hover:-translate-y-2 hover:border-accent transition-all duration-300 group cursor-pointer relative flex flex-col h-full block">
                    <div className="absolute top-8 left-8 z-10 bg-primary text-white font-heading font-bold px-3 py-1 rounded-sm text-xs uppercase tracking-wider">{price}</div>
                    <div className="w-full h-[250px] rounded-lg overflow-hidden mb-6 relative">
                      <img src={prop.photos[0]?.image || '/images/Size%20Optimized/_MG_4841.jpg'} alt={prop.publication_title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -887,12 +924,12 @@ const Alquiler = () => {
                      <h3 className="font-heading font-bold text-xl text-primary mb-2 line-clamp-2">{prop.publication_title}</h3>
                      <p className="font-heading text-sm text-dark/60 mb-6 flex items-center gap-2"><MapPin size={16}/> {prop.location?.name}</p>
                      <div className="mt-auto pt-4 border-t border-primary/10 flex items-center justify-between text-sm font-heading">
-                        <span className="flex items-center gap-1"><Bed size={16}/> {prop.roofed_surface}m²</span>
-                        <span className="flex items-center gap-1"><Bath size={16}/> {prop.bathroom_amount} Baños</span>
-                        <span className="font-bold text-accent group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">Ver <ArrowRight size={14} /></span>
+                        {prop.roofed_surface > 0 && <span className="flex items-center gap-1"><Bed size={16}/> {prop.roofed_surface}m²</span>}
+                        {prop.bathroom_amount > 0 && <span className="flex items-center gap-1"><Bath size={16}/> {prop.bathroom_amount} Baños</span>}
+                        <span className="font-bold text-primary group-hover:translate-x-1 transition-transform inline-flex items-center gap-1 ml-auto">Ver <ArrowRight size={14} /></span>
                      </div>
                    </div>
-                 </div>
+                 </Link>
                  );
              })
           ) : (
@@ -942,16 +979,15 @@ const Ventas = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`https://tokkobroker.com/api/v1/property/?key=${import.meta.env.VITE_TOKKO_API_KEY}&lang=es_ar&format=json&limit=40`)
-      .then(res => res.json())
-      .then(data => {
-        if(data && data.objects) {
-           const sales = data.objects.filter(p => p.operations.some(op => op.operation_type === "Venta"));
-           setProperties(sales.slice(0, 9));
-        }
+    fetchWithCache(
+      '/data/properties.json',
+      `https://tokkobroker.com/api/v1/property/?key=${import.meta.env.VITE_TOKKO_API_KEY}&lang=es_ar&format=json&limit=200`
+    ).then(all => {
+        const sales = all.filter(p => p.operations?.some(op => op.operation_type === 'Venta'));
+        setProperties(sales.slice(0, 9));
       })
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
+     .catch(err => console.error(err))
+     .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -1003,7 +1039,7 @@ const Ventas = () => {
                  const op = prop.operations.find(o => o.operation_type === "Venta");
                  const price = op && op.prices.length > 0 ? `${op.prices[0].currency} ${op.prices[0].price}` : 'Consultar';
                  return (
-                 <div key={prop.id} className="vnt-scroll bg-white rounded-[1rem] p-4 shadow-sm border border-primary/10 hover:shadow-xl hover:-translate-y-2 hover:border-accent transition-all duration-300 group cursor-pointer relative flex flex-col h-full">
+                 <Link key={prop.id} to={`/propiedad/${propSlug(prop)}`} className="vnt-scroll bg-white rounded-[1rem] p-4 shadow-sm border border-primary/10 hover:shadow-xl hover:-translate-y-2 hover:border-accent transition-all duration-300 group cursor-pointer relative flex flex-col h-full block">
                    <div className="absolute top-8 left-8 z-10 bg-primary text-white font-heading font-bold px-3 py-1 rounded-sm text-xs uppercase tracking-wider">{price}</div>
                    <div className="w-full h-[250px] rounded-lg overflow-hidden mb-6 relative">
                      <img src={prop.photos[0]?.image || '/images/Size%20Optimized/_MG_1122.jpg'} alt={prop.publication_title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -1012,12 +1048,12 @@ const Ventas = () => {
                      <h3 className="font-heading font-bold text-xl text-primary mb-2 line-clamp-2">{prop.publication_title}</h3>
                      <p className="font-heading text-sm text-dark/60 mb-6 flex items-center gap-2"><MapPin size={16}/> {prop.location?.name}</p>
                      <div className="mt-auto pt-4 border-t border-primary/10 flex items-center justify-between text-sm font-heading">
-                        <span className="flex items-center gap-1"><Bed size={16}/> {prop.roofed_surface}m²</span>
-                        <span className="flex items-center gap-1"><Bath size={16}/> {prop.bathroom_amount} Baños</span>
-                        <span className="font-bold text-accent group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">Ver <ArrowRight size={14} /></span>
+                        {prop.roofed_surface > 0 && <span className="flex items-center gap-1"><Bed size={16}/> {prop.roofed_surface}m²</span>}
+                        {prop.bathroom_amount > 0 && <span className="flex items-center gap-1"><Bath size={16}/> {prop.bathroom_amount} Baños</span>}
+                        <span className="font-bold text-primary group-hover:translate-x-1 transition-transform inline-flex items-center gap-1 ml-auto">Ver <ArrowRight size={14} /></span>
                      </div>
                    </div>
-                 </div>
+                 </Link>
                  );
              })
           ) : (
@@ -1173,29 +1209,377 @@ const Home = () => (
   </>
 );
 
+// ----------------------------------------------------
+// PROPERTY DETAIL PAGE
+// ----------------------------------------------------
+const WA_ICON = (
+  <svg viewBox="0 0 24 24" width={20} height={20} fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+);
+
+const PropertyDetail = () => {
+  const { id: rawSlug } = useParams();
+  const id = rawSlug.split('-')[0];
+  const navigate = useNavigate();
+  const [prop, setProp] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activePhoto, setActivePhoto] = useState(0);
+  const { setAddress } = useContext(PropertyCtx);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setLoading(true);
+    setProp(null);
+
+    // 1. Try properties cache
+    fetch('/data/properties.json')
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(data => {
+        const arr = Array.isArray(data) ? data : (data.objects ?? []);
+        const found = arr.find(x => String(x.id) === String(id));
+        if (found) { setProp(found); setLoading(false); return; }
+        // 2. Try developments cache
+        return fetch('/data/developments.json')
+          .then(r => r.json())
+          .then(data2 => {
+            const arr2 = Array.isArray(data2) ? data2 : (data2.objects ?? []);
+            const found2 = arr2.find(x => String(x.id) === String(id));
+            if (found2) { setProp(found2); setLoading(false); }
+            else throw new Error('not in cache');
+          });
+      })
+      .catch(() => {
+        // 3. Fallback: try both property AND development API endpoints in parallel
+        const key = import.meta.env.VITE_TOKKO_API_KEY;
+        Promise.allSettled([
+          fetch(`https://tokkobroker.com/api/v1/property/${id}/?key=${key}&lang=es_ar&format=json`).then(r => r.json()),
+          fetch(`https://tokkobroker.com/api/v1/development/${id}/?key=${key}&lang=es_ar&format=json`).then(r => r.json()),
+        ]).then(([propRes, devRes]) => {
+          const propData = propRes.status === 'fulfilled' && propRes.value?.id  ? propRes.value  : null;
+          const devData  = devRes.status  === 'fulfilled' && devRes.value?.id   ? devRes.value   : null;
+          setProp(propData ?? devData ?? null);
+        }).finally(() => setLoading(false));
+      });
+  }, [id]);
+
+  useEffect(() => {
+    if (prop) setAddress(prop.fake_address ?? prop.publication_title ?? prop.name ?? null);
+    return () => setAddress(null);
+  }, [prop]);
+
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#F9FAFB] pt-32 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-primary/20 border-t-accent rounded-full animate-spin" />
+        <p className="font-heading text-dark/50">Cargando propiedad…</p>
+      </div>
+    </div>
+  );
+
+  if (!prop) return (
+    <div className="min-h-screen bg-[#F9FAFB] pt-32 flex items-center justify-center flex-col gap-4">
+      <Building size={64} className="text-primary/20" />
+      <h1 className="font-heading font-bold text-2xl text-primary">Propiedad no encontrada</h1>
+      <button onClick={() => navigate(-1)} className="font-heading text-accent underline">Volver</button>
+    </div>
+  );
+
+  const op    = prop.operations?.[0];
+  const price = op?.prices?.[0];
+  const photos = prop.photos ?? [];
+  const title  = prop.publication_title ?? prop.name ?? '';
+  const lat    = prop.geo_lat  ?? prop.location?.lat;
+  const lon    = prop.geo_long ?? prop.location?.lon;
+
+  // Group tags by type
+  const tagsByType = (prop.tags ?? []).reduce((acc, t) => {
+    if (!acc[t.type]) acc[t.type] = [];
+    acc[t.type].push(t.name);
+    return acc;
+  }, {});
+
+  const specs = [
+    { label: 'Tipo',            value: prop.property_type?.name },
+    { label: 'Ambientes',       value: prop.room_amount },
+    { label: 'Dormitorios',     value: prop.suite_amount },
+    { label: 'Baños',           value: prop.bathroom_amount },
+    { label: 'Cocheras',        value: prop.parking_lot_amount },
+    { label: 'Sup. cubierta',   value: prop.roofed_surface   ? `${prop.roofed_surface} m²`   : null },
+    { label: 'Sup. descubierta',value: prop.unroofed_surface ? `${prop.unroofed_surface} m²` : null },
+    { label: 'Sup. semicubierta',value: prop.semiroofed_surface ? `${prop.semiroofed_surface} m²` : null },
+    { label: 'Sup. total',      value: prop.total_surface    ? `${prop.total_surface} m²`    : null },
+    { label: 'Estado',          value: prop.property_condition ?? prop.construction_status },
+    { label: 'Antigüedad',      value: prop.age },
+    { label: 'Expensas',        value: prop.expenses ? `ARS ${Number(prop.expenses).toLocaleString('es-AR')}` : null },
+  ].filter(s => s.value != null && s.value !== '' && s.value !== 0);
+
+  return (
+    <div className="min-h-screen bg-[#F9FAFB] pt-28 pb-24">
+      <div className="max-w-7xl mx-auto px-6 lg:px-12">
+
+        {/* Back */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-dark/50 hover:text-primary font-heading text-sm mb-8 transition-colors group"
+        >
+          <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+          Volver a resultados
+        </button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+          {/* ── MAIN COLUMN ─────────────────────────────── */}
+          <div className="lg:col-span-2 flex flex-col gap-8">
+
+            {/* Gallery */}
+            {photos.length > 0 && (
+              <div>
+                <div className="relative rounded-2xl overflow-hidden bg-primary/10 h-[420px] md:h-[500px]">
+                  <img
+                    src={photos[activePhoto]?.image}
+                    alt={title}
+                    className="w-full h-full object-cover transition-opacity duration-300"
+                  />
+                  {photos.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setActivePhoto(i => (i - 1 + photos.length) % photos.length)}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
+                      >
+                        <ChevronLeft size={22} />
+                      </button>
+                      <button
+                        onClick={() => setActivePhoto(i => (i + 1) % photos.length)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
+                      >
+                        <ChevronRight size={22} />
+                      </button>
+                      <span className="absolute bottom-3 right-3 bg-black/50 text-white text-xs font-data px-3 py-1 rounded-full">
+                        {activePhoto + 1} / {photos.length}
+                      </span>
+                    </>
+                  )}
+                </div>
+                {/* Thumbnails */}
+                <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                  {photos.map((ph, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActivePhoto(i)}
+                      className={`shrink-0 h-16 w-24 rounded-lg overflow-hidden border-2 transition-all ${i === activePhoto ? 'border-accent' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                    >
+                      <img src={ph.thumb ?? ph.image} alt="" className="w-full h-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Header */}
+            <div className="bg-white rounded-2xl p-8 border border-primary/10">
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                {op?.operation_type && (
+                  <span className="bg-primary text-white font-heading font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider">
+                    {op.operation_type}
+                  </span>
+                )}
+                {prop.property_type?.name && (
+                  <span className="bg-primary/5 text-primary font-heading font-bold text-xs px-3 py-1 rounded-full">
+                    {prop.property_type.name}
+                  </span>
+                )}
+                <span className="ml-auto font-data text-xs text-dark/40 tracking-widest">
+                  REF: {prop.reference_code ?? prop.id}
+                </span>
+              </div>
+              <h1 className="font-heading font-black text-2xl md:text-3xl text-primary mb-3 leading-snug">{title}</h1>
+              {(prop.address || prop.location?.name) && (
+                <p className="font-heading text-dark/60 flex items-center gap-1.5 text-sm">
+                  <MapPin size={15} className="text-accent shrink-0" />
+                  {prop.address ? `${prop.address}${prop.location?.name ? `, ${prop.location.name}` : ''}` : prop.location?.name}
+                </p>
+              )}
+            </div>
+
+            {/* Specs */}
+            {specs.length > 0 && (
+              <div className="bg-white rounded-2xl p-8 border border-primary/10">
+                <h2 className="font-heading font-bold text-lg text-primary mb-6 pb-3 border-b border-primary/10">Características</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-5">
+                  {specs.map(s => (
+                    <div key={s.label}>
+                      <p className="font-data text-xs text-dark/40 tracking-widest uppercase mb-0.5">{s.label}</p>
+                      <p className="font-heading font-semibold text-primary">{s.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Description */}
+            {prop.description && (
+              <div className="bg-white rounded-2xl p-8 border border-primary/10">
+                <h2 className="font-heading font-bold text-lg text-primary mb-4 pb-3 border-b border-primary/10">Descripción</h2>
+                <p className="font-heading text-dark/70 leading-relaxed whitespace-pre-line text-sm">{prop.description}</p>
+              </div>
+            )}
+
+            {/* Amenities */}
+            {Object.keys(tagsByType).length > 0 && (
+              <div className="bg-white rounded-2xl p-8 border border-primary/10">
+                <h2 className="font-heading font-bold text-lg text-primary mb-6 pb-3 border-b border-primary/10">Comodidades</h2>
+                <div className="flex flex-col gap-6">
+                  {Object.entries(tagsByType).map(([type, names]) => (
+                    <div key={type}>
+                      <p className="font-data text-xs text-dark/40 tracking-widest uppercase mb-3">{type}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {names.map(name => (
+                          <span key={name} className="bg-primary/5 text-primary font-heading text-sm px-3 py-1.5 rounded-lg border border-primary/10">
+                            {name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Map */}
+            {lat && lon && import.meta.env.VITE_GOOGLE_MAPS_API_KEY && (
+              <div className="bg-white rounded-2xl overflow-hidden border border-primary/10">
+                <div className="p-6 pb-0">
+                  <h2 className="font-heading font-bold text-lg text-primary mb-4">Ubicación</h2>
+                </div>
+                <iframe
+                  title="Mapa de ubicación"
+                  width="100%"
+                  height="320"
+                  style={{ border: 0, display: 'block' }}
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={`https://www.google.com/maps/embed/v1/place?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&q=${lat},${lon}&zoom=15`}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* ── SIDEBAR ─────────────────────────────────── */}
+          <div className="flex flex-col gap-6 lg:sticky lg:top-28 lg:self-start">
+
+            {/* Price + CTA */}
+            <div className="bg-white rounded-2xl p-8 border border-primary/10 shadow-sm">
+              {price && (
+                <div className="mb-6 pb-6 border-b border-primary/10">
+                  <p className="font-data text-xs text-dark/40 tracking-widest uppercase mb-1">Precio</p>
+                  <p className="font-drama font-black text-4xl text-primary leading-none">
+                    {price.currency} {Number(price.price).toLocaleString('es-AR')}
+                  </p>
+                  {prop.expenses && (
+                    <p className="font-heading text-xs text-dark/50 mt-2">
+                      + Expensas ARS {Number(prop.expenses).toLocaleString('es-AR')}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <p className="font-heading font-semibold text-sm text-primary mb-3">Consultar por WhatsApp</p>
+              <div className="flex flex-col gap-2 mb-5">
+                <a
+                  href={`https://wa.me/5491177170405?text=${encodeURIComponent(`Hola, quería más información sobre esta propiedad: ${window.location.href}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] font-heading font-semibold text-sm px-4 py-3 rounded-xl transition-colors"
+                >
+                  {WA_ICON}
+                  Villa Ballester
+                </a>
+                <a
+                  href={`https://wa.me/5491177176007?text=${encodeURIComponent(`Hola, quería más información sobre esta propiedad: ${window.location.href}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] font-heading font-semibold text-sm px-4 py-3 rounded-xl transition-colors"
+                >
+                  {WA_ICON}
+                  San Martín
+                </a>
+              </div>
+
+              <Link
+                to="/contacto"
+                className="block w-full text-center bg-primary hover:bg-primary/90 text-white font-heading font-bold px-6 py-3 rounded-xl transition-colors"
+              >
+                Solicitar información
+              </Link>
+            </div>
+
+            {/* Branch offices */}
+            <div className="bg-white rounded-2xl p-8 border border-primary/10">
+              <h3 className="font-heading font-bold text-sm text-primary mb-5 pb-3 border-b border-primary/10 uppercase tracking-wider">Nuestras Oficinas</h3>
+              <div className="flex flex-col gap-5">
+                <div className="flex items-start gap-3">
+                  <div className="bg-primary/5 p-2 rounded-lg text-accent shrink-0 mt-0.5"><MapPin size={16} /></div>
+                  <div>
+                    <p className="font-heading font-semibold text-primary text-sm">Villa Ballester</p>
+                    <p className="font-heading text-xs text-dark/60">Almirante Brown 3295</p>
+                    <a href="tel:+5491177170405" className="font-heading text-xs text-accent hover:underline">+54 9 11 7717-0405</a>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="bg-primary/5 p-2 rounded-lg text-accent shrink-0 mt-0.5"><MapPin size={16} /></div>
+                  <div>
+                    <p className="font-heading font-semibold text-primary text-sm">San Martín</p>
+                    <p className="font-heading text-xs text-dark/60">Mitre 3404</p>
+                    <a href="tel:+5491177176007" className="font-heading text-xs text-accent hover:underline">+54 9 11 7717-6007</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const WA_SVG = <svg viewBox="0 0 24 24" width={18} height={18} fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>;
+
 const WhatsAppButton = () => {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+
+  const isPropertyPage = location.pathname.startsWith('/propiedad/');
+  const msg = isPropertyPage
+    ? `Hola, quería más información sobre esta propiedad: ${window.location.origin}${location.pathname}`
+    : 'Hola, quería realizar una consulta.';
+
+  const waUrl = (number) =>
+    `https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
       {/* Tooltip */}
       <div className={`flex flex-col gap-2 transition-all duration-300 ${open ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'}`}>
         <a
-          href="https://wa.me/5491177170405"
+          href={waUrl('5491177170405')}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 bg-white text-primary font-heading font-semibold text-sm px-4 py-3 rounded-2xl shadow-xl border border-primary/10 hover:border-[#25D366] hover:text-[#25D366] transition-all duration-200 whitespace-nowrap"
         >
-          <svg viewBox="0 0 24 24" width={18} height={18} fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          {WA_SVG}
           Villa Ballester
         </a>
         <a
-          href="https://wa.me/5491177176007"
+          href={waUrl('5491177176007')}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 bg-white text-primary font-heading font-semibold text-sm px-4 py-3 rounded-2xl shadow-xl border border-primary/10 hover:border-[#25D366] hover:text-[#25D366] transition-all duration-200 whitespace-nowrap"
         >
-          <svg viewBox="0 0 24 24" width={18} height={18} fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          {WA_SVG}
           San Martín
         </a>
       </div>
@@ -1217,7 +1601,9 @@ const WhatsAppButton = () => {
 };
 
 export default function App() {
+  const [propAddress, setPropAddress] = useState(null);
   return (
+    <PropertyCtx.Provider value={{ address: propAddress, setAddress: setPropAddress }}>
     <Router>
       <div className="bg-background min-h-screen relative selection:bg-accent selection:text-primary">
         <Navbar />
@@ -1229,9 +1615,11 @@ export default function App() {
           <Route path="/alquiler" element={<Alquiler />} />
           <Route path="/venta" element={<Ventas />} />
           <Route path="/sucursales" element={<Sucursales />} />
+          <Route path="/propiedad/:id" element={<PropertyDetail />} />
         </Routes>
         <Footer />
       </div>
     </Router>
+    </PropertyCtx.Provider>
   );
 }
