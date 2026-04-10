@@ -396,17 +396,31 @@ const Categories = () => {
 // F. TOKKO PROPERTIES / LATEST LISTINGS
 // ----------------------------------------------------
 const PropertiesFetch = () => {
+  const [allProperties, setAllProperties] = useState([]);
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     fetchWithCache(
       '/data/developments.json',
       `https://tokkobroker.com/api/v1/development/?key=${import.meta.env.VITE_TOKKO_API_KEY}&lang=es_ar&format=json&limit=200`
-    ).then(all => setProperties(all.slice(0, 6)))
+    ).then(all => { setAllProperties(all); setProperties(all.slice(0, 6)); })
      .catch(err => console.error('Developments fetch error:', err))
      .finally(() => setLoading(false));
   }, []);
+
+  const handleSearch = () => {
+    const q = query.trim().toLowerCase();
+    if (!q) { setProperties(allProperties.slice(0, 6)); return; }
+    const filtered = allProperties.filter(d =>
+      (d.name ?? '').toLowerCase().includes(q) ||
+      (d.location?.name ?? '').toLowerCase().includes(q) ||
+      (d.construction_status ?? '').toLowerCase().includes(q) ||
+      (d.fake_address ?? '').toLowerCase().includes(q)
+    );
+    setProperties(filtered.slice(0, 6));
+  };
 
   return (
     <section id="propiedades" className="py-32 px-6 lg:px-12 bg-white relative">
@@ -423,18 +437,24 @@ const PropertiesFetch = () => {
           </Link>
         </div>
 
-        {/* Large Decorative Search Bar */}
-        <div className="bg-background border border-primary/20 p-2 rounded-2xl md:rounded-full flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-4 max-w-4xl mx-auto w-full relative group hover:border-accent transition-colors">
+        {/* Search Bar */}
+        <form onSubmit={e => { e.preventDefault(); handleSearch(); }} className="bg-background border border-primary/20 p-2 rounded-2xl md:rounded-full flex flex-col md:flex-row items-stretch md:items-center gap-2 md:gap-4 max-w-4xl mx-auto w-full relative group hover:border-accent transition-colors">
           <div className="flex items-center gap-2 flex-1 px-2 md:px-0">
             <div className="p-3 md:p-4 text-primary group-hover:text-accent transition-colors shrink-0">
               <Search size={24} strokeWidth={1.5} />
             </div>
-            <input type="text" placeholder="¿Qué estás buscando? Ej: Casa en Villa Ballester..." className="flex-1 bg-transparent border-none outline-none font-heading text-base md:text-lg text-primary placeholder:text-dark/30 min-w-0" />
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Buscá por nombre, ubicación o estado..."
+              className="flex-1 bg-transparent border-none outline-none font-heading text-base md:text-lg text-primary placeholder:text-dark/30 min-w-0"
+            />
           </div>
-          <button className="bg-primary text-white px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-full font-heading font-bold shadow-sm hover:scale-[1.02] border border-primary hover:border-accent transition-all">
-            Buscar Inmueble
+          <button type="submit" className="bg-primary text-white px-6 py-3 md:px-8 md:py-4 rounded-xl md:rounded-full font-heading font-bold shadow-sm hover:scale-[1.02] border border-primary hover:border-accent transition-all">
+            Buscar
           </button>
-        </div>
+        </form>
 
         {/* Tokko Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -743,7 +763,7 @@ const Emprendimientos = () => {
            <div className="absolute inset-0 bg-primary/70"></div>
            <div className="relative z-10 text-center px-4">
               <span className="emp-hero font-data tracking-widest text-xs text-white/70 mb-4 block">// DESARROLLOS E INVERSIONES</span>
-              <h1 className="emp-hero font-drama font-black text-6xl md:text-8xl text-white leading-none mb-4">Desarrollando</h1>
+              <h1 className="emp-hero font-drama font-black text-4xl md:text-8xl text-white leading-none mb-4">Desarrollando</h1>
               <p className="emp-hero font-heading font-normal italic text-2xl md:text-3xl text-white/80">Lo Nuevo de San Martín</p>
            </div>
         </div>
