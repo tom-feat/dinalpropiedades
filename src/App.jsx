@@ -58,8 +58,9 @@ const Navbar = () => {
   const isVentaPage = location.pathname === '/venta';
   const isSucursalesPage = location.pathname === '/sucursales';
   const isDetailPage = location.pathname.startsWith('/propiedad');
+  const isNosotrosPage = location.pathname === '/nosotros';
 
-  const isDarkNav = scrolled || isContactPage || isEmprendimientosPage || isAlquilerPage || isVentaPage || isSucursalesPage || isDetailPage;
+  const isDarkNav = scrolled || isContactPage || isEmprendimientosPage || isAlquilerPage || isVentaPage || isSucursalesPage || isDetailPage || isNosotrosPage;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -88,6 +89,7 @@ const Navbar = () => {
         <Link to="/alquiler" className="hover:-translate-y-[1px] hover:text-accent transition-all duration-300">Alquiler</Link>
         <Link to="/emprendimientos" className="hover:-translate-y-[1px] hover:text-accent transition-all duration-300">Emprendimientos</Link>
         <Link to="/sucursales" className="hover:-translate-y-[1px] hover:text-accent transition-all duration-300">Sucursales</Link>
+        <Link to="/nosotros" className="hover:-translate-y-[1px] hover:text-accent transition-all duration-300">Nosotros</Link>
       </div>
 
       <div className="hidden md:block">
@@ -110,6 +112,7 @@ const Navbar = () => {
          <Link to="/alquiler" className="font-heading text-4xl text-primary hover:text-accent transition-colors" onClick={()=>setMobileOpen(false)}>Alquiler</Link>
          <Link to="/emprendimientos" className="font-heading text-4xl text-primary hover:text-accent transition-colors" onClick={()=>setMobileOpen(false)}>Emprendimientos</Link>
          <Link to="/sucursales" className="font-heading text-4xl text-primary hover:text-accent transition-colors" onClick={()=>setMobileOpen(false)}>Sucursales</Link>
+         <Link to="/nosotros" className="font-heading text-4xl text-primary hover:text-accent transition-colors" onClick={()=>setMobileOpen(false)}>Nosotros</Link>
          <Link to="/contacto" className="font-heading text-4xl text-primary hover:text-accent transition-colors" onClick={()=>setMobileOpen(false)}>Contacto</Link>
     </div>
     </>
@@ -1602,6 +1605,181 @@ const WhatsAppButton = () => {
   );
 };
 
+// ----------------------------------------------------
+// SOBRE NOSOTROS
+// ----------------------------------------------------
+const SobreNosotros = () => {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useLayoutEffect(() => {
+    let ctx = gsap.context(() => {
+      gsap.from(".nos-hero", { y: 40, opacity: 0, duration: 1.2, stagger: 0.1, ease: "power3.out", delay: 0.2 });
+      gsap.utils.toArray(".nos-scroll").forEach(el => {
+        gsap.from(el, { scrollTrigger: { trigger: el, start: "top 85%" }, y: 40, opacity: 0, duration: 0.8, ease: "power3.out" });
+      });
+    }, containerRef);
+    return () => ctx.revert();
+  }, []);
+
+  const valores = [
+    {
+      icon: <Building size={28} />,
+      title: "Trayectoria",
+      desc: "Más de 20 años construyendo confianza en Villa Ballester y la zona norte del Gran Buenos Aires. Cada proyecto refleja nuestra historia.",
+      data: "+20 años"
+    },
+    {
+      icon: <ArrowRight size={28} />,
+      title: "Innovación",
+      desc: "Pioneros en financiamiento en pesos con cuotas accesibles. Facilitamos el acceso a la vivienda con soluciones flexibles y pensadas para cada cliente.",
+      data: "Financiación propia"
+    },
+    {
+      icon: <MapPin size={28} />,
+      title: "Compromiso familiar",
+      desc: "Somos una empresa de familia. Néstor fundó la base y Nahuel lleva adelante la visión de seguir creciendo juntos, con los mismos valores de siempre.",
+      data: "Familia Ruiz"
+    }
+  ];
+
+  const hitos = [
+    { year: "2003", label: "Fundación", desc: "Néstor Ruiz funda Dinal Propiedades en Villa Ballester, con la visión de ser la inmobiliaria de referencia en la zona." },
+    { year: "2007", label: "Grupo Dinal", desc: "Nace Grupo Dinal: la alianza entre la familia Ruiz y la familia Montanari une expertise comercial y trayectoria constructora." },
+    { year: "Hoy", label: "Nueva generación", desc: "Nahuel Ruiz asume la conducción junto a su padre. La misma esencia, con mirada renovada y proyección hacia el futuro." }
+  ];
+
+  return (
+    <div ref={containerRef} className="bg-[#F9FAFB] pt-32 pb-24 min-h-screen">
+
+      {/* ── HERO ── */}
+      <section className="px-6 lg:px-12 mb-24">
+        <div className="max-w-7xl mx-auto rounded-[2rem] overflow-hidden relative h-[60vh] flex items-center justify-center shadow-2xl">
+          <img src="/images/Size%20Optimized/_MG_1091.jpg" alt="Sobre Nosotros" className="absolute inset-0 w-full h-full object-cover scale-105 transition-all duration-1000" />
+          <div className="absolute inset-0 bg-primary/75"></div>
+          <div className="relative z-10 text-center px-4">
+            <span className="nos-hero font-data tracking-widest text-xs text-white/70 mb-4 block">// NUESTRA HISTORIA</span>
+            <h1 className="nos-hero font-drama font-black text-5xl md:text-7xl text-white mb-6">Más de 20 años<br /><span className="font-heading font-black text-accent tracking-tight">construyendo juntos.</span></h1>
+            <p className="nos-hero font-heading text-lg text-white/80 max-w-xl mx-auto">Una empresa de familia, una historia de esfuerzo, y una visión compartida que trasciende generaciones.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── HISTORIA ── */}
+      <section className="px-6 lg:px-12 mb-32">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <span className="nos-scroll font-data tracking-widest text-xs text-primary/50 mb-4 block">// LOS COMIENZOS</span>
+            <h2 className="nos-scroll font-drama font-black text-4xl md:text-5xl text-primary mb-6 leading-tight">Una decisión <br />que cambió <br /><span className="text-accent">todo.</span></h2>
+            <p className="nos-scroll font-heading text-dark/70 text-lg leading-relaxed mb-6">
+              En 2003, Néstor Ruiz apostó a construir algo propio en Villa Ballester. Con esfuerzo, convicción y una vocación genuina por el servicio, fundó Dinal Propiedades — la inmobiliaria que se convertiría en referente de la zona norte del Gran Buenos Aires.
+            </p>
+            <p className="nos-scroll font-heading text-dark/70 text-lg leading-relaxed mb-6">
+              En 2007 nació Grupo Dinal: la unión con la familia Montanari sumó expertise constructora a la solidez comercial. Juntos levantaron proyectos que hoy son hogar para miles de familias.
+            </p>
+            <p className="nos-scroll font-heading text-dark/70 text-lg leading-relaxed">
+              Hoy, Nahuel —hijo de Néstor— conduce la empresa junto a su padre. Creció dentro de Dinal, aprendió los valores que la construyeron, y hoy lleva adelante esa herencia con una mirada moderna y el mismo compromiso de siempre.
+            </p>
+          </div>
+          <div className="nos-scroll relative">
+            <div className="rounded-[2rem] overflow-hidden shadow-2xl h-[480px]">
+              <img src="/images/Size%20Optimized/_MG_2464.jpg" alt="Historia Dinal" className="w-full h-full object-cover" />
+            </div>
+            <div className="absolute -bottom-6 -left-6 bg-primary text-white px-6 py-4 rounded-2xl shadow-xl">
+              <p className="font-data text-xs text-white/60 tracking-widest uppercase mb-1">Fundada en</p>
+              <p className="font-drama font-black text-4xl text-accent">2003</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TIMELINE ── */}
+      <section className="px-6 lg:px-12 mb-32">
+        <div className="max-w-7xl mx-auto">
+          <span className="nos-scroll font-data tracking-widest text-xs text-primary/50 mb-2 block text-center">// HITOS</span>
+          <h2 className="nos-scroll font-drama font-black text-4xl md:text-5xl text-primary text-center mb-16">Nuestro camino</h2>
+          <div className="relative">
+            {/* Vertical line */}
+            <div className="hidden lg:block absolute left-1/2 -translate-x-1/2 top-0 bottom-0 w-px bg-primary/10"></div>
+            <div className="flex flex-col gap-16">
+              {hitos.map((h, i) => (
+                <div key={h.year} className={`nos-scroll flex flex-col lg:flex-row items-center gap-8 ${i % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}>
+                  <div className={`flex-1 ${i % 2 !== 0 ? 'lg:text-right' : 'lg:text-left'}`}>
+                    <span className="font-data text-xs text-primary/40 tracking-widest uppercase block mb-2">{h.label}</span>
+                    <p className="font-heading text-dark/70 text-lg leading-relaxed">{h.desc}</p>
+                  </div>
+                  <div className="flex-shrink-0 relative z-10 flex flex-col items-center">
+                    <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center shadow-xl border-4 border-accent">
+                      <span className="font-drama font-black text-accent text-xl leading-none">{h.year}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 hidden lg:block"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── VALORES ── */}
+      <section className="px-6 lg:px-12 mb-32">
+        <div className="max-w-7xl mx-auto">
+          <span className="nos-scroll font-data tracking-widest text-xs text-primary/50 mb-2 block text-center">// VALORES</span>
+          <h2 className="nos-scroll font-drama font-black text-4xl md:text-5xl text-primary text-center mb-16">Lo que nos define</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {valores.map((v) => (
+              <div key={v.title} className="nos-scroll bg-white p-8 rounded-[1.5rem] shadow border border-primary/10 hover:-translate-y-2 hover:border-accent transition-all duration-500 group flex flex-col">
+                <div className="text-accent mb-4 group-hover:scale-110 transition-transform duration-300">{v.icon}</div>
+                <h3 className="font-heading font-bold text-primary text-xl mb-3">{v.title}</h3>
+                <p className="font-heading text-dark/60 leading-relaxed flex-grow">{v.desc}</p>
+                <div className="mt-6 pt-4 border-t border-primary/10">
+                  <span className="font-data text-xs tracking-widest text-primary/40 uppercase">{v.data}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── STATS ── */}
+      <section className="px-6 lg:px-12 mb-32">
+        <div className="max-w-7xl mx-auto bg-primary rounded-[2rem] py-16 px-8 shadow-2xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-10 text-center">
+            {[
+              { value: "+20", label: "Años de experiencia" },
+              { value: "78", label: "Proyectos en Pcia. de Bs. As." },
+              { value: "+150.000", label: "m² entregados" },
+              { value: "1.350", label: "Unidades vendidas" }
+            ].map((s) => (
+              <div key={s.label} className="nos-scroll">
+                <p className="font-drama font-black text-5xl md:text-6xl text-accent mb-2">{s.value}</p>
+                <p className="font-heading text-white/60 text-sm">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto bg-primary rounded-[2rem] p-10 md:p-16 text-center shadow-2xl relative overflow-hidden">
+          <div className="relative z-10">
+            <h2 className="nos-scroll font-drama text-4xl md:text-5xl text-white mb-6">¿Querés conocernos mejor?</h2>
+            <p className="nos-scroll font-heading text-white/70 max-w-2xl mx-auto mb-10 text-lg">Acercate a nuestras sucursales o contactanos. Estamos para asesorarte y acompañarte en cada paso de tu próxima inversión.</p>
+            <Link to="/contacto" className="nos-scroll inline-block bg-transparent border-2 border-accent text-accent font-heading font-bold px-8 py-4 rounded-xl hover:bg-accent hover:text-primary transition-colors transform hover:scale-105 duration-300 shadow-xl">
+              Hablemos
+            </Link>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  );
+};
+
 export default function App() {
   const [propAddress, setPropAddress] = useState(null);
   return (
@@ -1617,6 +1795,7 @@ export default function App() {
           <Route path="/alquiler" element={<Alquiler />} />
           <Route path="/venta" element={<Ventas />} />
           <Route path="/sucursales" element={<Sucursales />} />
+          <Route path="/nosotros" element={<SobreNosotros />} />
           <Route path="/propiedad/:id" element={<PropertyDetail />} />
         </Routes>
         <Footer />
