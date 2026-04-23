@@ -40,3 +40,36 @@ body {
   background: theme('colors.primary');
   border-radius: 4px;
 }
+
+/* Enhanced property description HTML */
+.property-description h3 {
+  font-family: theme('fontFamily.heading');
+  font-weight: 700;
+  color: theme('colors.primary');
+  font-size: 0.95rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.property-description p {
+  margin-bottom: 0.75rem;
+}
+.property-description ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 0.75rem;
+}
+.property-description ul li {
+  padding-left: 1.25rem;
+  position: relative;
+  margin-bottom: 0.25rem;
+}
+.property-description ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: theme('colors.accent');
+}

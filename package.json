@@ -9,9 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "sync": "node scripts/sync-tokko.js",
+    "enhance": "node scripts/enhance.js",
+    "enhance:force": "node scripts/enhance.js --force",
     "cron": "node scripts/cron.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
     "@gsap/react": "^2.1.2",
     "autoprefixer": "^10.4.27",
     "dotenv": "^17.4.1",

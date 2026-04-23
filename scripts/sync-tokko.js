@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { writeFileSync, mkdirSync } from 'fs';
+import { execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -72,6 +73,8 @@ async function sync() {
       `[${new Date().toISOString()}] Done. ` +
       `Properties: ${properties.length}, Developments: ${developments.length}`,
     );
+
+    execFileSync(process.execPath, [join(__dirname, 'enhance.js')], { stdio: 'inherit' });
   } catch (err) {
     console.error(`[${new Date().toISOString()}] Sync failed:`, err);
     process.exit(1);

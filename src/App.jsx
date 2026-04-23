@@ -1424,10 +1424,17 @@ const PropertyDetail = () => {
             )}
 
             {/* Description */}
-            {prop.description && (
+            {(prop.enhanced_description || prop.rich_description || prop.description) && (
               <div className="bg-white rounded-2xl p-8 border border-primary/10">
                 <h2 className="font-heading font-bold text-lg text-primary mb-4 pb-3 border-b border-primary/10">Descripción</h2>
-                <p className="font-heading text-dark/70 leading-relaxed whitespace-pre-line text-sm">{prop.description}</p>
+                {prop.enhanced_description || prop.rich_description ? (
+                  <div
+                    className="font-heading text-dark/70 leading-relaxed text-sm property-description"
+                    dangerouslySetInnerHTML={{ __html: prop.enhanced_description || prop.rich_description }}
+                  />
+                ) : (
+                  <p className="font-heading text-dark/70 leading-relaxed whitespace-pre-line text-sm">{prop.description}</p>
+                )}
               </div>
             )}
 
