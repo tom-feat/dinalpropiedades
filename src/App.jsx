@@ -1653,7 +1653,7 @@ const PropertyDetail = () => {
                       <div className="flex flex-wrap gap-2">
                         {names.map(name => (
                           <span key={name} className="inline-flex items-center gap-1.5 bg-primary/5 text-primary font-heading text-sm px-3 py-1.5 rounded-lg border border-primary/10">
-                            <span className="text-accent shrink-0">{TAG_ICONS[name] ?? <Check size={14} />}</span>
+                            <span className="text-primary/50 shrink-0">{TAG_ICONS[name] ?? <Check size={14} />}</span>
                             {name}
                           </span>
                         ))}
