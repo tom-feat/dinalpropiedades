@@ -608,6 +608,36 @@ const PropertiesFetch = () => {
 // ----------------------------------------------------
 const Contact = () => {
   const containerRef = useRef(null);
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', reason: '', message: '' });
+  const [submitStatus, setSubmitStatus] = useState('idle'); // idle | sending | success | error
+
+  const handleField = e => setFormData(f => ({ ...f, [e.target.id]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitStatus('sending');
+    try {
+      const res = await fetch(
+        `https://tokkobroker.com/api/v1/property/contact/?key=${import.meta.env.VITE_TOKKO_API_KEY}&format=json`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone,
+            message: `[${formData.reason || 'Consulta general'}] ${formData.message}`,
+            tags: ['Web', 'Contacto'],
+          }),
+        }
+      );
+      if (!res.ok) throw new Error();
+      setSubmitStatus('success');
+      setFormData({ name: '', email: '', phone: '', reason: '', message: '' });
+    } catch {
+      setSubmitStatus('error');
+    }
+  };
 
   useLayoutEffect(() => {
     let ctx = gsap.context(() => {
@@ -657,26 +687,26 @@ const Contact = () => {
             </p>
           </div>
 
-          <form className="contact-elem bg-white p-8 md:p-10 rounded-[2rem] border border-primary/10 shadow-xl relative group w-full" onSubmit={(e) => e.preventDefault()}>
+          <form className="contact-elem bg-white p-8 md:p-10 rounded-[2rem] border border-primary/10 shadow-xl relative group w-full" onSubmit={handleSubmit}>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div className="relative">
-                <input type="text" id="name" className="peer w-full bg-transparent border-b border-primary/20 text-primary py-2 outline-none font-heading text-lg focus:border-accent transition-colors placeholder-transparent" placeholder="Nombre completo" required />
+                <input type="text" id="name" value={formData.name} onChange={handleField} className="peer w-full bg-transparent border-b border-primary/20 text-primary py-2 outline-none font-heading text-lg focus:border-accent transition-colors placeholder-transparent" placeholder="Nombre completo" required />
                 <label htmlFor="name" className="absolute left-0 -top-4 text-xs font-heading text-dark/50 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-2 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-accent cursor-text">Nombre completo</label>
               </div>
               <div className="relative">
-                <input type="email" id="email" className="peer w-full bg-transparent border-b border-primary/20 text-primary py-2 outline-none font-heading text-lg focus:border-accent transition-colors placeholder-transparent" placeholder="Correo electrónico" required />
+                <input type="email" id="email" value={formData.email} onChange={handleField} className="peer w-full bg-transparent border-b border-primary/20 text-primary py-2 outline-none font-heading text-lg focus:border-accent transition-colors placeholder-transparent" placeholder="Correo electrónico" required />
                 <label htmlFor="email" className="absolute left-0 -top-4 text-xs font-heading text-dark/50 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-2 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-accent cursor-text">Correo electrónico</label>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
               <div className="relative">
-                <input type="tel" id="phone" className="peer w-full bg-transparent border-b border-primary/20 text-primary py-2 outline-none font-heading text-lg focus:border-accent transition-colors placeholder-transparent" placeholder="Teléfono" />
+                <input type="tel" id="phone" value={formData.phone} onChange={handleField} className="peer w-full bg-transparent border-b border-primary/20 text-primary py-2 outline-none font-heading text-lg focus:border-accent transition-colors placeholder-transparent" placeholder="Teléfono" />
                 <label htmlFor="phone" className="absolute left-0 -top-4 text-xs font-heading text-dark/50 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-2 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-accent cursor-text">Teléfono</label>
               </div>
               <div className="relative">
-                <select id="reason" className="w-full bg-transparent border-b border-primary/20 text-primary py-2 outline-none font-heading text-lg focus:border-accent transition-colors appearance-none cursor-pointer">
+                <select id="reason" value={formData.reason} onChange={handleField} className="w-full bg-transparent border-b border-primary/20 text-primary py-2 outline-none font-heading text-lg focus:border-accent transition-colors appearance-none cursor-pointer">
                   <option value="" className="text-dark/50">Motivo de consulta...</option>
                   <option value="tasacion" className="text-primary">Tasación</option>
                   <option value="compra" className="text-primary">Comprar propiedad</option>
@@ -688,13 +718,23 @@ const Contact = () => {
             </div>
 
             <div className="relative mb-12">
-              <textarea id="message" rows="2" className="peer w-full bg-transparent border-b border-primary/20 text-primary py-2 outline-none font-heading text-lg focus:border-accent transition-colors placeholder-transparent resize-none" placeholder="Mensaje" required></textarea>
+              <textarea id="message" value={formData.message} onChange={handleField} rows="2" className="peer w-full bg-transparent border-b border-primary/20 text-primary py-2 outline-none font-heading text-lg focus:border-accent transition-colors placeholder-transparent resize-none" placeholder="Mensaje" required></textarea>
               <label htmlFor="message" className="absolute left-0 -top-4 text-xs font-heading text-dark/50 transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-2 peer-focus:-top-4 peer-focus:text-xs peer-focus:text-accent cursor-text">Tu mensaje</label>
             </div>
 
-            <button type="submit" className="w-full bg-primary border-2 border-transparent hover:border-accent text-white font-heading font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-3 transition-colors duration-300 transform hover:scale-[1.02]">
-              Enviar mensaje
-              <ArrowRight size={20} />
+            {submitStatus === 'success' && (
+              <div className="mb-4 bg-accent/20 border border-accent/40 text-primary font-heading text-sm px-4 py-3 rounded-xl">
+                ¡Mensaje enviado! Nos pondremos en contacto a la brevedad.
+              </div>
+            )}
+            {submitStatus === 'error' && (
+              <div className="mb-4 bg-red-50 border border-red-200 text-red-600 font-heading text-sm px-4 py-3 rounded-xl">
+                Hubo un error al enviar. Intentá de nuevo o contactanos por WhatsApp.
+              </div>
+            )}
+            <button type="submit" disabled={submitStatus === 'sending'} className="w-full bg-primary border-2 border-transparent hover:border-accent disabled:opacity-60 text-white font-heading font-bold text-lg py-4 rounded-xl flex items-center justify-center gap-3 transition-colors duration-300 transform hover:scale-[1.02]">
+              {submitStatus === 'sending' ? 'Enviando…' : 'Enviar mensaje'}
+              {submitStatus !== 'sending' && <ArrowRight size={20} />}
             </button>
           </form>
           
