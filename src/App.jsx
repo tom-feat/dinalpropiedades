@@ -281,7 +281,7 @@ const Philosophy = () => {
       </div>
       <div className="relative z-10 w-full max-w-5xl text-center flex flex-col items-center gap-8">
         <h2 className="phil-text font-heading text-2xl md:text-3xl text-background/60">
-          La mayoría de las agencias se enfocan en <span className="text-white">vender metros cuadrados.</span>
+          Muchas agencias se enfocan en <span className="text-white">vender metros cuadrados.</span>
         </h2>
         
         {/* Accent line effect */}

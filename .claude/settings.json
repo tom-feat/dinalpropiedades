@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(npm run *)",
-      "Read(//c/Users/Tomas/.claude/projects/c--Users-Tomas-Desktop-Sitio-web-Dinal-Propiedades/**)"
+      "Read(//c/Users/Tomas/.claude/projects/c--Users-Tomas-Desktop-Sitio-web-Dinal-Propiedades/**)",
+      "Bash(node scripts/sync-tokko.js)"
     ]
   }
 }
