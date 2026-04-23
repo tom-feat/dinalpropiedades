@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useLayoutEffect, createContext, useContext
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Building, MapPin, Compass, Search, Phone, Mail, ArrowRight, Menu, X, Clock, Bed, Bath, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Building, MapPin, Compass, Search, Phone, Mail, ArrowRight, Menu, X, Clock, Bed, Bath, ArrowLeft, ChevronLeft, ChevronRight, Droplets, Flame, Zap, Wifi, Tv, Thermometer, Trees, Package, DoorOpen, Users, Waves, Wind, Sun, Shield, Dumbbell, Bell, Car, FileText, TrendingUp, Check, Utensils, Home as HomeIcon, Leaf, Sofa, Shirt, Star } from 'lucide-react';
 
 const PropertyCtx = createContext({ address: null, setAddress: () => {} });
 
@@ -27,6 +27,125 @@ async function fetchWithCache(cacheUrl, apiUrl) {
 }
 
 gsap.registerPlugin(ScrollTrigger);
+
+const CONSTRUCTION_STATUS = {
+  1: 'En pozo',
+  2: 'En construcción',
+  3: 'Terminado',
+  4: 'Entrega inmediata',
+  5: 'Proyecto',
+  6: 'En construcción',
+};
+
+function constructionLabel(status) {
+  return CONSTRUCTION_STATUS[status] ?? (status ? String(status) : 'Emprendimiento');
+}
+
+const TAG_TYPE_LABELS = {
+  1: 'Servicios',
+  2: 'Ambientes',
+  3: 'Amenities',
+  9: 'Características',
+};
+
+const TAG_ICONS = {
+  // Servicios (type 1)
+  'Agua Corriente':           <Droplets size={14} />,
+  'Agua Potable':             <Droplets size={14} />,
+  'Gas Natural':              <Flame size={14} />,
+  'Electricidad':             <Zap size={14} />,
+  'Energia trifasica':        <Zap size={14} />,
+  'Losa radiante general':    <Thermometer size={14} />,
+  'Cable':                    <Tv size={14} />,
+  'TV Cable en el edificio':  <Tv size={14} />,
+  'Internet':                 <Wifi size={14} />,
+  'Alumbrado público':        <Sun size={14} />,
+  'Cloaca':                   <Waves size={14} />,
+  'Pavimento':                <Building size={14} />,
+  // Ambientes (type 2)
+  'Cocina':                   <Utensils size={14} />,
+  'Jardín':                   <Trees size={14} />,
+  'Lavadero':                 <Wind size={14} />,
+  'Living comedor':           <Sofa size={14} />,
+  'Comedor diario':           <Sofa size={14} />,
+  'Patio':                    <Leaf size={14} />,
+  'Terraza':                  <Sun size={14} />,
+  'Balcón':                   <HomeIcon size={14} />,
+  'Balcón terraza':           <HomeIcon size={14} />,
+  'Vestidor':                 <Shirt size={14} />,
+  'Baulera':                  <Package size={14} />,
+  'Hall':                     <DoorOpen size={14} />,
+  'Escritorio':               <FileText size={14} />,
+  'Dependencia':              <HomeIcon size={14} />,
+  'Sala de reuniones':        <Users size={14} />,
+  'Altillo':                  <ArrowRight size={14} />,
+  'Toilette':                 <Droplets size={14} />,
+  'Galería':                  <HomeIcon size={14} />,
+  'Palier':                   <DoorOpen size={14} />,
+  'Oficina':                  <FileText size={14} />,
+  // Amenities (type 3)
+  'Parrilla':                 <Flame size={14} />,
+  'Parrilla techada':         <Flame size={14} />,
+  'Parrilla individual en departamento': <Flame size={14} />,
+  'Quincho':                  <Flame size={14} />,
+  'Pileta':                   <Waves size={14} />,
+  'Pileta descubierta':       <Waves size={14} />,
+  'Ascensor':                 <Building size={14} />,
+  'Montacargas':              <Building size={14} />,
+  'SUM':                      <Users size={14} />,
+  'Club House':               <Users size={14} />,
+  'Gimnasio':                 <Dumbbell size={14} />,
+  'Centro de deportes':       <Dumbbell size={14} />,
+  'Seguridad':                <Shield size={14} />,
+  'Seguridad 24hs':           <Shield size={14} />,
+  'Seguridad Privada':        <Shield size={14} />,
+  'Seguridad portería':       <Shield size={14} />,
+  'Seguridad de día':         <Shield size={14} />,
+  'Alarma':                   <Bell size={14} />,
+  'Video Cámaras':            <Bell size={14} />,
+  'Preinstalación de aire acondicionado': <Wind size={14} />,
+  'Aire Acondicionado individual': <Wind size={14} />,
+  'Calefacción':              <Thermometer size={14} />,
+  'Calefacción individual':   <Thermometer size={14} />,
+  'Calefacción central':      <Thermometer size={14} />,
+  'Calefacción por aire':     <Thermometer size={14} />,
+  'Calefacción F/C':          <Thermometer size={14} />,
+  'calefacción por aire':     <Thermometer size={14} />,
+  'Caldera':                  <Thermometer size={14} />,
+  'Luminoso':                 <Sun size={14} />,
+  'Solarium':                 <Sun size={14} />,
+  'Deck':                     <Leaf size={14} />,
+  'Zonas Verdes':             <Trees size={14} />,
+  'Riego automático':         <Droplets size={14} />,
+  'Apto mascotas':            <Star size={14} />,
+  'Apto profesional':         <Star size={14} />,
+  'Cochera fija':             <Car size={14} />,
+  'Cochera subterránea':      <Car size={14} />,
+  'Depósito de Agua':         <Droplets size={14} />,
+  'Termotanque Individual':   <Thermometer size={14} />,
+  'Lavavajillas':             <Utensils size={14} />,
+  'Laundry':                  <Wind size={14} />,
+  'Amenities':                <Star size={14} />,
+  'Barrio privado':           <Shield size={14} />,
+  'Portón Corredizo':         <DoorOpen size={14} />,
+  'Portones eléctricos':      <DoorOpen size={14} />,
+  'Portón Levadizo':          <DoorOpen size={14} />,
+  'Puerta de garaje automática': <DoorOpen size={14} />,
+  'Carpintería de aluminio':  <Building size={14} />,
+  'Ventanas doble acristalamiento': <Building size={14} />,
+  'Doble Acristalamiento':    <Building size={14} />,
+  'Ventanas de aluminio':     <Building size={14} />,
+  'Hidromasaje':              <Waves size={14} />,
+  'Cancha de Golf':           <Leaf size={14} />,
+  'Ruta':                     <MapPin size={14} />,
+  'En construcción':          <Building size={14} />,
+  'Estilo Moderno':           <Star size={14} />,
+  'Semi piso':                <HomeIcon size={14} />,
+  'Ubicación tranquila':      <Leaf size={14} />,
+  // Características (type 9)
+  'Potencial alto para alquilar': <TrendingUp size={14} />,
+  'Escritura inmediata':      <FileText size={14} />,
+};
 
 function slugify(str) {
   return (str ?? '')
@@ -456,7 +575,7 @@ const PropertiesFetch = () => {
               properties.map(dev => (
                 <Link key={dev.id} to={`/propiedad/${propSlug(dev)}`} className="bg-background rounded-[1rem] p-4 shadow-sm border border-primary/10 hover:-translate-y-2 hover:border-accent transition-all duration-300 group cursor-pointer relative flex flex-col block">
                   <div className="absolute top-8 left-8 z-10 bg-primary text-white font-heading font-bold px-3 py-1 rounded-sm text-xs uppercase tracking-wider">
-                    {dev.construction_status || 'Emprendimiento'}
+                    {constructionLabel(dev.construction_status)}
                   </div>
                   <div className="w-full h-[240px] rounded-lg overflow-hidden mb-6 relative">
                     <img src={dev.photos[0]?.image || '/images/Size%20Optimized/_MG_2516.jpg'} alt={dev.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -792,7 +911,7 @@ const Emprendimientos = () => {
              devs.map(dev => (
                  <Link key={dev.id} to={`/propiedad/${propSlug(dev)}`} className="emp-scroll bg-white rounded-[1rem] p-4 shadow-sm border border-primary/10 hover:shadow-xl hover:-translate-y-2 hover:border-accent transition-all duration-300 group cursor-pointer relative flex flex-col h-full block">
                    <div className="absolute top-8 left-8 z-10 bg-primary text-white font-heading font-bold px-3 py-1 rounded-sm text-xs uppercase tracking-wider">
-                     {dev.construction_status || 'Emprendimiento'}
+                     {constructionLabel(dev.construction_status)}
                    </div>
                    <div className="w-full h-[250px] rounded-lg overflow-hidden mb-6 relative">
                      <img src={dev.photos[0]?.image || '/images/Size%20Optimized/_MG_2516.jpg'} alt={dev.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -1223,6 +1342,89 @@ const WA_ICON = (
   </svg>
 );
 
+const PropertyInquiryForm = ({ propertyId }) => {
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [status, setStatus] = useState('idle'); // idle | sending | success | error
+
+  const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    setStatus('sending');
+    try {
+      const res = await fetch(
+        `https://tokkobroker.com/api/v1/property/contact/?key=${import.meta.env.VITE_TOKKO_API_KEY}&format=json`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            property_ids: [propertyId],
+            name: form.name,
+            email: form.email,
+            phone: form.phone,
+            message: form.message || `Consulta sobre propiedad #${propertyId}`,
+            tags: ['Web'],
+          }),
+        }
+      );
+      if (!res.ok) throw new Error('Error al enviar');
+      setStatus('success');
+      setForm({ name: '', email: '', phone: '', message: '' });
+    } catch {
+      setStatus('error');
+    }
+  };
+
+  if (status === 'success') {
+    return (
+      <div className="bg-accent/10 border border-accent/30 rounded-xl p-6 text-center">
+        <p className="font-heading font-bold text-primary text-sm mb-1">¡Consulta enviada!</p>
+        <p className="font-heading text-dark/60 text-xs">Nos comunicaremos a la brevedad.</p>
+        <button onClick={() => setStatus('idle')} className="mt-4 font-heading text-xs text-primary/50 hover:text-primary transition-colors underline">
+          Enviar otra consulta
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3 pt-2">
+      <p className="font-heading font-semibold text-sm text-primary">Consultar por esta propiedad</p>
+      <input
+        name="name" value={form.name} onChange={handleChange} required
+        placeholder="Nombre completo"
+        className="w-full border border-primary/15 rounded-xl px-4 py-2.5 font-heading text-sm text-primary placeholder-dark/30 focus:outline-none focus:border-accent transition-colors"
+      />
+      <input
+        name="email" type="email" value={form.email} onChange={handleChange} required
+        placeholder="Email"
+        className="w-full border border-primary/15 rounded-xl px-4 py-2.5 font-heading text-sm text-primary placeholder-dark/30 focus:outline-none focus:border-accent transition-colors"
+      />
+      <input
+        name="phone" value={form.phone} onChange={handleChange}
+        placeholder="Teléfono (opcional)"
+        className="w-full border border-primary/15 rounded-xl px-4 py-2.5 font-heading text-sm text-primary placeholder-dark/30 focus:outline-none focus:border-accent transition-colors"
+      />
+      <textarea
+        name="message" value={form.message} onChange={handleChange}
+        placeholder="Mensaje (opcional)"
+        rows={3}
+        className="w-full border border-primary/15 rounded-xl px-4 py-2.5 font-heading text-sm text-primary placeholder-dark/30 focus:outline-none focus:border-accent transition-colors resize-none"
+      />
+      {status === 'error' && (
+        <p className="font-heading text-xs text-red-500">Hubo un error. Intentá de nuevo o escribinos por WhatsApp.</p>
+      )}
+      <button
+        type="submit"
+        disabled={status === 'sending'}
+        className="w-full bg-primary hover:bg-primary/90 disabled:opacity-60 text-white font-heading font-bold px-6 py-3 rounded-xl transition-colors"
+      >
+        {status === 'sending' ? 'Enviando…' : 'Solicitar información'}
+      </button>
+    </form>
+  );
+};
+
 const PropertyDetail = () => {
   const { id: rawSlug } = useParams();
   const id = rawSlug.split('-')[0];
@@ -1315,7 +1517,7 @@ const PropertyDetail = () => {
     { label: 'Sup. descubierta',value: prop.unroofed_surface ? `${prop.unroofed_surface} m²` : null },
     { label: 'Sup. semicubierta',value: prop.semiroofed_surface ? `${prop.semiroofed_surface} m²` : null },
     { label: 'Sup. total',      value: prop.total_surface    ? `${prop.total_surface} m²`    : null },
-    { label: 'Estado',          value: prop.property_condition ?? prop.construction_status },
+    { label: 'Estado',          value: prop.property_condition ?? constructionLabel(prop.construction_status) },
     { label: 'Antigüedad',      value: prop.age },
     { label: 'Expensas',        value: prop.expenses ? `ARS ${Number(prop.expenses).toLocaleString('es-AR')}` : null },
   ].filter(s => s.value != null && s.value !== '' && s.value !== 0);
@@ -1445,10 +1647,13 @@ const PropertyDetail = () => {
                 <div className="flex flex-col gap-6">
                   {Object.entries(tagsByType).map(([type, names]) => (
                     <div key={type}>
-                      <p className="font-data text-xs text-dark/40 tracking-widest uppercase mb-3">{type}</p>
+                      <p className="font-data text-xs text-dark/40 tracking-widest uppercase mb-3">
+                        {TAG_TYPE_LABELS[type] ?? type}
+                      </p>
                       <div className="flex flex-wrap gap-2">
                         {names.map(name => (
-                          <span key={name} className="bg-primary/5 text-primary font-heading text-sm px-3 py-1.5 rounded-lg border border-primary/10">
+                          <span key={name} className="inline-flex items-center gap-1.5 bg-primary/5 text-primary font-heading text-sm px-3 py-1.5 rounded-lg border border-primary/10">
+                            <span className="text-accent shrink-0">{TAG_ICONS[name] ?? <Check size={14} />}</span>
                             {name}
                           </span>
                         ))}
@@ -1520,12 +1725,7 @@ const PropertyDetail = () => {
                 </a>
               </div>
 
-              <Link
-                to="/contacto"
-                className="block w-full text-center bg-primary hover:bg-primary/90 text-white font-heading font-bold px-6 py-3 rounded-xl transition-colors"
-              >
-                Solicitar información
-              </Link>
+              <PropertyInquiryForm propertyId={prop.id} />
             </div>
 
             {/* Branch offices */}
@@ -1537,7 +1737,7 @@ const PropertyDetail = () => {
                   <div>
                     <p className="font-heading font-semibold text-primary text-sm">Villa Ballester</p>
                     <p className="font-heading text-xs text-dark/60">Almirante Brown 3295</p>
-                    <a href="tel:+5491177170405" className="font-heading text-xs text-accent hover:underline">+54 9 11 7717-0405</a>
+                    <a href="tel:+5491177170405" className="font-heading text-xs text-primary/60 hover:text-primary transition-colors">+54 9 11 7717-0405</a>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -1545,7 +1745,7 @@ const PropertyDetail = () => {
                   <div>
                     <p className="font-heading font-semibold text-primary text-sm">San Martín</p>
                     <p className="font-heading text-xs text-dark/60">Mitre 3404</p>
-                    <a href="tel:+5491177176007" className="font-heading text-xs text-accent hover:underline">+54 9 11 7717-6007</a>
+                    <a href="tel:+5491177176007" className="font-heading text-xs text-primary/60 hover:text-primary transition-colors">+54 9 11 7717-6007</a>
                   </div>
                 </div>
               </div>
