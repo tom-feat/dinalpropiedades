@@ -3,343 +3,136 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dinal — Font Exploration</title>
+  <title>Dinal — Font Options</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@800&family=Oswald:wght@700&family=Saira+Condensed:wght@800&family=Teko:wght@600&family=Fjalla+One&family=Saira+Extra+Condensed:wght@800&family=Exo+2:wght@900&family=Michroma&family=Russo+One&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root { --navy: #0A162D; --accent: #A3FF86; }
-
-    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--navy); color: #fff; }
-    body { display: flex; flex-direction: column; }
-
-    /* ── Header ─────────────────────────────────────── */
-    .header {
-      flex-shrink: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 52px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
-    .header-title {
-      font-family: Arial, sans-serif;
-      font-size: 10px;
-      letter-spacing: 3.5px;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-    }
-    .header-counter {
-      font-family: Arial, sans-serif;
-      font-size: 12px;
-      letter-spacing: 2px;
-      color: var(--accent);
-    }
-
-    /* ── Slideshow ───────────────────────────────────── */
-    .slideshow {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .slide {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      pointer-events: none;
-      z-index: 1;
-    }
-    .slide.active { opacity: 1; pointer-events: all; z-index: 2; }
-
-    /*
-     * Logo: favicon at 198px, DINAL SVG at 128px.
-     * Both heights are exact so align-items:center is perfectly accurate.
-     * Gap = 208/823 × 198 ≈ 50px (logo.svg proportions).
-     */
-    .logo-combo {
-      display: flex;
-      align-items: center;
-      gap: 50px;
-    }
-
-    .favicon-icon { flex-shrink: 0; }
-    .favicon-icon svg { height: 198px; width: auto; display: block; }
-
-    /* text-slot: the SVG is injected here by JS after fonts load */
-    .text-slot { flex-shrink: 0; display: flex; align-items: center; }
-    .text-slot svg { display: block; height: 128px; width: auto; }
-
-    /* Loading state */
-    .text-slot-loading {
-      height: 128px;
-      display: flex;
-      align-items: center;
-      color: rgba(255,255,255,0.15);
-      font-family: Arial, sans-serif;
-      font-size: 11px;
-      letter-spacing: 3px;
-    }
-
-    /* ── Footer ──────────────────────────────────────── */
-    .footer {
-      flex-shrink: 0;
+    body {
+      background: #0A162D;
+      margin: 0;
+      padding: 60px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 52px 20px;
-      border-top: 1px solid rgba(255,255,255,0.07);
+      gap: 60px;
     }
-    .font-info { text-align: center; display: flex; flex-direction: column; gap: 4px; }
-    .font-tag  { font-family: Arial, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); }
-    .font-note { font-family: Arial, sans-serif; font-size: 12px; color: rgba(255,255,255,0.28); }
 
-    /* ── Nav ─────────────────────────────────────────── */
-    .nav { display: flex; align-items: center; gap: 20px; }
-    .nav-btn {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: transparent;
-      color: rgba(255,255,255,0.7);
-      cursor: pointer;
+    .row {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      transition: border-color .2s, background .2s, color .2s;
-      user-select: none;
+      gap: 40px;
     }
-    .nav-btn:hover { border-color: var(--accent); background: rgba(163,255,134,.07); color: var(--accent); }
-    .dots { display: flex; gap: 8px; align-items: center; }
-    .dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.18);
-      cursor: pointer;
-      transition: background .25s, transform .25s;
-    }
-    .dot.active { background: var(--accent); transform: scale(1.6); }
 
-    .kbd-hint {
-      position: fixed;
-      bottom: 22px; right: 52px;
+    .row svg { height: 198px; width: auto; }
+
+    .label {
       font-family: Arial, sans-serif;
-      font-size: 9px;
-      color: rgba(255,255,255,0.12);
-      letter-spacing: 2px;
+      font-size: 11px;
+      color: #A3FF86;
+      letter-spacing: 3px;
       text-transform: uppercase;
-      pointer-events: none;
+      margin-bottom: 8px;
     }
+
+    .dinal {
+      color: white;
+      font-size: 128px;
+      line-height: 1;
+    }
+
+    .f1  { font-family: 'Bebas Neue', sans-serif; }
+    .f2  { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; }
+    .f3  { font-family: 'Oswald', sans-serif; font-weight: 700; }
+    .f4  { font-family: 'Saira Condensed', sans-serif; font-weight: 800; }
+    .f5  { font-family: 'Teko', sans-serif; font-weight: 600; }
+    .f6  { font-family: 'Fjalla One', sans-serif; }
+    .f7  { font-family: 'Saira Extra Condensed', sans-serif; font-weight: 800; }
+    .f8  { font-family: 'Exo 2', sans-serif; font-weight: 900; }
+    .f9  { font-family: 'Michroma', sans-serif; }
+    .f10 { font-family: 'Russo One', sans-serif; }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <span class="header-title">Dinal Propiedades — Font Exploration</span>
-    <span class="header-counter" id="counter">01 / 10</span>
-  </div>
-
-  <div class="slideshow" id="slideshow"></div>
-
-  <div class="footer">
-    <div class="font-info">
-      <div class="font-tag"  id="font-tag"></div>
-      <div class="font-note" id="font-note"></div>
-    </div>
-    <div class="nav">
-      <button class="nav-btn" id="prev">&#8592;</button>
-      <div class="dots" id="dots"></div>
-      <button class="nav-btn" id="next">&#8594;</button>
+  <div class="row">
+    <svg viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="a0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask><g mask="url(#a0)"><mask id="a1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask><g mask="url(#a1)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g></g><mask id="a5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask><g mask="url(#a5)"><mask id="a6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask><g mask="url(#a6)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g></g><mask id="a10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask><g mask="url(#a10)"><mask id="a11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask><g mask="url(#a11)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g></g></svg>
+    <div>
+      <div class="label">Bebas Neue</div>
+      <div class="dinal f1">DINAL</div>
     </div>
   </div>
 
-  <span class="kbd-hint">← → to navigate</span>
+  <div class="row">
+    <svg viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="b0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask><g mask="url(#b0)"><mask id="b1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask><g mask="url(#b1)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g></g><mask id="b5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask><g mask="url(#b5)"><mask id="b6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask><g mask="url(#b6)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g></g><mask id="b10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask><g mask="url(#b10)"><mask id="b11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask><g mask="url(#b11)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g></g></svg>
+    <div>
+      <div class="label">Barlow Condensed ExtraBold</div>
+      <div class="dinal f2">DINAL</div>
+    </div>
+  </div>
 
-  <script>
-    /* ── Inline favicon SVG ──────────────────────────── */
-    const FAVICON_SVG = `<svg width="565" height="565" viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg">
-<mask id="fa0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask>
-<g mask="url(#fa0)"><mask id="fa1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask>
-<g mask="url(#fa1)"><mask id="fa2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="0" width="413" height="495"><path d="M423.158 0.754395H11V494.41H423.158V0.754395Z" fill="white"/></mask>
-<g mask="url(#fa2)"><mask id="fa3" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="3" width="412" height="491"><path d="M11.5039 3.07666H422.431V493.081H11.5039V3.07666Z" fill="white"/></mask>
-<g mask="url(#fa3)"><mask id="fa4" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.178 3.69434L381.486 74.2843L366.223 100.744C364.265 100.633 362.277 100.601 360.319 100.601H99.0115V190.87H314.261L208.254 374.711H182.636V235.206H99.0115V464.932H156.261L140.129 492.909H12.1035V3.69434H422.178Z" fill="white"/></mask>
-<g mask="url(#fa4)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g>
-</g></g></g></g>
-<mask id="fa5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask>
-<g mask="url(#fa5)"><mask id="fa6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask>
-<g mask="url(#fa6)"><mask id="fa7" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="140" y="73" width="413" height="495"><path d="M552.463 73.5854H140.305V567.241H552.463V73.5854Z" fill="white"/></mask>
-<g mask="url(#fa7)"><mask id="fa8" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.82 73.5854H552.463V563.495H141.82V73.5854Z" fill="white"/></mask>
-<g mask="url(#fa8)"><mask id="fa9" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2808V563.495H142.248L182.971 492.905L199.071 464.928H360.323C425.559 464.928 478.468 411.962 478.468 346.62V218.906C478.468 169.101 447.768 126.52 404.266 109.038L424.312 74.2808H552.149Z" fill="white"/></mask>
-<g mask="url(#fa9)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g>
-</g></g></g></g>
-<mask id="fa10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask>
-<g mask="url(#fa10)"><mask id="fa11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask>
-<g mask="url(#fa11)"><mask id="fa12" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="249" y="186" width="142" height="192"><path d="M390.829 186.886H249.402V377.065H390.829V186.886Z" fill="white"/></mask>
-<g mask="url(#fa12)"><mask id="fa13" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="190" width="141" height="186"><path d="M250.953 190.206H390.833V375.406H250.953V190.206Z" fill="white"/></mask>
-<g mask="url(#fa13)"><mask id="fa14" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.686 212.175V353.703C390.686 365.304 381.294 374.709 369.709 374.709H251.074L350.957 201.506C354.777 194.915 361.785 190.837 369.409 190.837C381.184 190.837 390.717 200.4 390.717 212.175" fill="white"/></mask>
-<g mask="url(#fa14)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g>
-</g></g></g></g>
-</svg>`;
+  <div class="row">
+    <svg viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="c0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask><g mask="url(#c0)"><mask id="c1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask><g mask="url(#c1)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g></g><mask id="c5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask><g mask="url(#c5)"><mask id="c6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask><g mask="url(#c6)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g></g><mask id="c10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask><g mask="url(#c10)"><mask id="c11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask><g mask="url(#c11)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g></g></svg>
+    <div>
+      <div class="label">Oswald Bold</div>
+      <div class="dinal f3">DINAL</div>
+    </div>
+  </div>
 
-    /* ── Config ──────────────────────────────────────── */
-    const LOGO_H = 198;  // favicon display height (px)
-    const TEXT_H = 128;  // DINAL text visual cap height (px)
-    const NS     = 'http://www.w3.org/2000/svg';
+  <div class="row">
+    <svg viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="d0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask><g mask="url(#d0)"><mask id="d1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask><g mask="url(#d1)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g></g><mask id="d5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask><g mask="url(#d5)"><mask id="d6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask><g mask="url(#d6)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g></g><mask id="d10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask><g mask="url(#d10)"><mask id="d11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask><g mask="url(#d11)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g></g></svg>
+    <div>
+      <div class="label">Saira Condensed ExtraBold</div>
+      <div class="dinal f4">DINAL</div>
+    </div>
+  </div>
 
-    /* ── Font list ───────────────────────────────────── */
-    const fonts = [
-      { family: 'Bebas Neue',           weight: '400', name: 'Bebas Neue',                  note: 'Bold condensed display — closest to the current logo style' },
-      { family: 'Barlow Condensed',     weight: '800', name: 'Barlow Condensed ExtraBold',  note: 'Geometric condensed, clean and modern — slight softness vs. Bebas' },
-      { family: 'Oswald',               weight: '700', name: 'Oswald Bold',                 note: 'Classic condensed sans-serif — versatile and professional' },
-      { family: 'Saira Condensed',      weight: '800', name: 'Saira Condensed ExtraBold',   note: 'Technical / industrial personality — condensed with sharp edges' },
-      { family: 'Teko',                 weight: '600', name: 'Teko SemiBold',               note: 'Condensed display with unique letterform cuts — open tracking' },
-      { family: 'Fjalla One',           weight: '400', name: 'Fjalla One',                  note: 'High-contrast condensed — strong editorial and signage presence' },
-      { family: 'Saira Extra Condensed',weight: '800', name: 'Saira Extra Condensed Black', note: 'Ultra-tight condensed — maximum compression, bold statement' },
-      { family: 'Exo 2',                weight: '900', name: 'Exo 2 Black',                 note: 'Geometric with tech personality — angled terminals, futuristic' },
-      { family: 'Michroma',             weight: '400', name: 'Michroma',                    note: 'Geometric monoline — industrial and architectural, unique cut-ins' },
-      { family: 'Russo One',            weight: '400', name: 'Russo One',                   note: 'Bold industrial display — solid, direct, no-nonsense weight' },
-    ];
+  <div class="row">
+    <svg viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="e0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask><g mask="url(#e0)"><mask id="e1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask><g mask="url(#e1)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g></g><mask id="e5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask><g mask="url(#e5)"><mask id="e6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask><g mask="url(#e6)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g></g><mask id="e10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask><g mask="url(#e10)"><mask id="e11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask><g mask="url(#e11)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g></g></svg>
+    <div>
+      <div class="label">Teko SemiBold</div>
+      <div class="dinal f5">DINAL</div>
+    </div>
+  </div>
 
-    /* ── Build slides ────────────────────────────────── */
-    const slideshowEl = document.getElementById('slideshow');
-    const dotsEl      = document.getElementById('dots');
-    const counterEl   = document.getElementById('counter');
-    const fontTagEl   = document.getElementById('font-tag');
-    const fontNoteEl  = document.getElementById('font-note');
-    let current  = 0;
-    let animating = false;
+  <div class="row">
+    <svg viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="f0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask><g mask="url(#f0)"><mask id="f1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask><g mask="url(#f1)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g></g><mask id="f5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask><g mask="url(#f5)"><mask id="f6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask><g mask="url(#f6)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g></g><mask id="f10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask><g mask="url(#f10)"><mask id="f11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask><g mask="url(#f11)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g></g></svg>
+    <div>
+      <div class="label">Fjalla One</div>
+      <div class="dinal f6">DINAL</div>
+    </div>
+  </div>
 
-    fonts.forEach((font, i) => {
-      const slide = document.createElement('div');
-      slide.className = 'slide' + (i === 0 ? ' active' : '');
-      slide.innerHTML = `
-        <div class="logo-combo">
-          <div class="favicon-icon">${FAVICON_SVG}</div>
-          <div class="text-slot" id="slot-${i}">
-            <div class="text-slot-loading">LOADING</div>
-          </div>
-        </div>
-      `;
-      slideshowEl.appendChild(slide);
-    });
+  <div class="row">
+    <svg viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="g0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask><g mask="url(#g0)"><mask id="g1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask><g mask="url(#g1)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g></g><mask id="g5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask><g mask="url(#g5)"><mask id="g6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask><g mask="url(#g6)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g></g><mask id="g10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask><g mask="url(#g10)"><mask id="g11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask><g mask="url(#g11)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g></g></svg>
+    <div>
+      <div class="label">Saira Extra Condensed Black</div>
+      <div class="dinal f7">DINAL</div>
+    </div>
+  </div>
 
-    fontTagEl.textContent  = fonts[0].name;
-    fontNoteEl.textContent = fonts[0].note;
+  <div class="row">
+    <svg viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="h0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask><g mask="url(#h0)"><mask id="h1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask><g mask="url(#h1)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g></g><mask id="h5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask><g mask="url(#h5)"><mask id="h6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask><g mask="url(#h6)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g></g><mask id="h10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask><g mask="url(#h10)"><mask id="h11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask><g mask="url(#h11)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g></g></svg>
+    <div>
+      <div class="label">Exo 2 Black</div>
+      <div class="dinal f8">DINAL</div>
+    </div>
+  </div>
 
-    /* ── Build dots ──────────────────────────────────── */
-    const dotEls = fonts.map((_, i) => {
-      const dot = document.createElement('div');
-      dot.className = 'dot' + (i === 0 ? ' active' : '');
-      dot.addEventListener('click', () => goTo(i));
-      dotsEl.appendChild(dot);
-      return dot;
-    });
+  <div class="row">
+    <svg viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="i0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask><g mask="url(#i0)"><mask id="i1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask><g mask="url(#i1)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g></g><mask id="i5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask><g mask="url(#i5)"><mask id="i6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask><g mask="url(#i6)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g></g><mask id="i10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask><g mask="url(#i10)"><mask id="i11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask><g mask="url(#i11)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g></g></svg>
+    <div>
+      <div class="label">Michroma</div>
+      <div class="dinal f9">DINAL</div>
+    </div>
+  </div>
 
-    const slides = document.querySelectorAll('.slide');
+  <div class="row">
+    <svg viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="j0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493"><path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask><g mask="url(#j0)"><mask id="j1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490"><path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask><g mask="url(#j1)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g></g><mask id="j5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491"><path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask><g mask="url(#j5)"><mask id="j6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490"><path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask><g mask="url(#j6)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g></g><mask id="j10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188"><path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask><g mask="url(#j10)"><mask id="j11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185"><path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask><g mask="url(#j11)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g></g></svg>
+    <div>
+      <div class="label">Russo One</div>
+      <div class="dinal f10">DINAL</div>
+    </div>
+  </div>
 
-    /* ── Build SVG text for each font after load ─────── */
-    /*
-     * Strategy: render each font's "DINAL" text inside a large temp SVG that's
-     * attached to the DOM (so CSS fonts apply). Use getBBox() to get the exact
-     * visual bounding box of the rendered glyphs (no line-height padding, no
-     * ascender/descender whitespace — purely the pixels). Then set the final
-     * SVG's viewBox to that tight bbox, width/height so height = TEXT_H exactly.
-     * This is pixel-perfect regardless of font metrics.
-     */
-    document.fonts.ready.then(() => {
-      /* Temp container in DOM so fonts resolve */
-      const tempWrap = document.createElement('div');
-      tempWrap.setAttribute('aria-hidden', 'true');
-      tempWrap.style.cssText =
-        'position:fixed;top:-9999px;left:-9999px;width:5000px;height:2000px;visibility:hidden;pointer-events:none;';
-      document.body.appendChild(tempWrap);
-
-      fonts.forEach((font, i) => {
-        /* Create a temp SVG large enough to hold any font at size 800 */
-        const tempSvg = document.createElementNS(NS, 'svg');
-        tempSvg.setAttribute('width',  '5000');
-        tempSvg.setAttribute('height', '2000');
-        tempWrap.appendChild(tempSvg);
-
-        const textEl = document.createElementNS(NS, 'text');
-        textEl.setAttribute('font-family', `'${font.family}', sans-serif`);
-        textEl.setAttribute('font-weight', font.weight);
-        textEl.setAttribute('font-size',   '800');
-        textEl.setAttribute('x',           '200');   /* left margin so getBBox x isn't negative */
-        textEl.setAttribute('y',           '1000');  /* ample room above for any ascender */
-        textEl.setAttribute('fill',        'white');
-        textEl.textContent = 'DINAL';
-        tempSvg.appendChild(textEl);
-
-        /* getBBox returns the tight visual bounding box of the rendered glyphs */
-        const bb = textEl.getBBox();
-        tempWrap.removeChild(tempSvg);
-
-        if (!bb || bb.height === 0) return; /* font didn't load — skip */
-
-        /* Scale so height = TEXT_H, width proportional */
-        const scale  = TEXT_H / bb.height;
-        const finalW = Math.ceil(bb.width * scale);
-
-        /* Final SVG: viewBox = tight bbox → height 128px exact */
-        const finalSvg = document.createElementNS(NS, 'svg');
-        finalSvg.setAttribute('width',   String(finalW));
-        finalSvg.setAttribute('height',  String(TEXT_H));
-        finalSvg.setAttribute('viewBox', `${bb.x} ${bb.y} ${bb.width} ${bb.height}`);
-
-        const finalText = document.createElementNS(NS, 'text');
-        finalText.setAttribute('font-family', `'${font.family}', sans-serif`);
-        finalText.setAttribute('font-weight', font.weight);
-        finalText.setAttribute('font-size',   '800');
-        finalText.setAttribute('x',           '200');
-        finalText.setAttribute('y',           '1000');
-        finalText.setAttribute('fill',        'white');
-        finalText.textContent = 'DINAL';
-        finalSvg.appendChild(finalText);
-
-        const slot = document.getElementById(`slot-${i}`);
-        slot.innerHTML = '';
-        slot.appendChild(finalSvg);
-      });
-
-      document.body.removeChild(tempWrap);
-    });
-
-    /* ── Navigation ──────────────────────────────────── */
-    function goTo(idx) {
-      if (animating) return;
-      const next = ((idx % fonts.length) + fonts.length) % fonts.length;
-      if (next === current) return;
-      animating = true;
-
-      slides[next].classList.add('active');
-      dotEls[next].classList.add('active');
-
-      requestAnimationFrame(() => {
-        slides[current].classList.remove('active');
-        dotEls[current].classList.remove('active');
-        current = next;
-        counterEl.textContent  = String(current + 1).padStart(2, '0') + ' / ' + fonts.length;
-        fontTagEl.textContent  = fonts[current].name;
-        fontNoteEl.textContent = fonts[current].note;
-        setTimeout(() => { animating = false; }, 540);
-      });
-    }
-
-    document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
-    document.getElementById('next').addEventListener('click', () => goTo(current + 1));
-    document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft')  goTo(current - 1);
-      if (e.key === 'ArrowRight') goTo(current + 1);
-    });
-  </script>
 </body>
 </html>
