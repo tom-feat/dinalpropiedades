@@ -11,9 +11,10 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --navy:   #0A162D;
-      --accent: #A3FF86;
-      --white:  #FFFFFF;
+      --navy:        #0A162D;
+      --accent:      #A3FF86;
+      --white:       #FFFFFF;
+      --icon-height: 220px;
     }
 
     html, body {
@@ -34,17 +35,16 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 18px 52px;
+      padding: 16px 52px;
       border-bottom: 1px solid rgba(255,255,255,0.07);
     }
 
     .header-title {
       font-family: Arial, sans-serif;
       font-size: 10px;
-      font-weight: 400;
       letter-spacing: 3.5px;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.3);
     }
 
     .header-counter {
@@ -54,7 +54,7 @@
       color: var(--accent);
     }
 
-    /* ── Slideshow ───────────────────────────────────── */
+    /* ── Slideshow area ──────────────────────────────── */
     .slideshow {
       flex: 1;
       position: relative;
@@ -65,10 +65,8 @@
       position: absolute;
       inset: 0;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 40px;
       opacity: 0;
       transition: opacity 0.5s ease;
       pointer-events: none;
@@ -81,58 +79,58 @@
       z-index: 2;
     }
 
-    /* ── Logo combo ──────────────────────────────────── */
+    /*
+     * Logo combo: D-mark icon + DINAL text.
+     * align-items: flex-end → both bottom-aligned so the text baseline
+     * sits at the same level as the D mark bottom, matching the logo.
+     * Gap (56px) mirrors the logo's proportional whitespace between D mark
+     * right edge (x≈793) and DINAL text start (x=1001): 208/823 × 220 ≈ 56px.
+     */
     .logo-combo {
       display: flex;
-      align-items: center;
-      gap: 52px;
+      align-items: flex-end;
+      gap: 56px;
     }
 
     .favicon-icon {
       flex-shrink: 0;
-      display: flex;
-      align-items: center;
+      display: block;
     }
 
     .favicon-icon svg {
-      height: 130px;
+      height: var(--icon-height);
       width: auto;
       display: block;
     }
 
-    .combo-divider {
-      width: 1px;
-      height: 108px;
-      background: rgba(255,255,255,0.12);
-      flex-shrink: 0;
+    /*
+     * font-size is set by JS (Canvas measurement) so that the cap height
+     * of each font exactly equals --icon-height, regardless of font metrics.
+     */
+    .dinal-word {
+      display: block;
+      line-height: 1;
+      color: var(--white);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
     }
 
-    .text-stack {
+    /* ── Footer: font info + nav ─────────────────────── */
+    .footer {
+      flex-shrink: 0;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 52px 22px;
+      border-top: 1px solid rgba(255,255,255,0.07);
     }
 
-    .dinal-word {
-      font-size: 140px;
-      line-height: 0.82;
-      color: var(--white);
-      letter-spacing: 0.03em;
-    }
-
-    .propiedades-word {
-      font-size: 14px;
-      color: rgba(255,255,255,0.3);
-      letter-spacing: 0.5em;
-      text-transform: uppercase;
-    }
-
-    /* ── Font info label ─────────────────────────────── */
     .font-info {
       text-align: center;
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 5px;
     }
 
     .font-tag {
@@ -146,24 +144,19 @@
 
     .font-note {
       font-family: Arial, sans-serif;
-      font-size: 13px;
+      font-size: 12px;
       color: rgba(255,255,255,0.28);
-      letter-spacing: 0.3px;
     }
 
-    /* ── Bottom nav ──────────────────────────────────── */
+    /* ── Nav controls ────────────────────────────────── */
     .nav {
-      flex-shrink: 0;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 22px;
-      padding: 18px 52px;
-      border-top: 1px solid rgba(255,255,255,0.07);
+      gap: 20px;
     }
 
     .nav-btn {
-      width: 40px; height: 40px;
+      width: 36px; height: 36px;
       border-radius: 50%;
       border: 1px solid rgba(255,255,255,0.18);
       background: transparent;
@@ -172,9 +165,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 17px;
+      font-size: 15px;
       transition: border-color 0.2s, background 0.2s, color 0.2s;
-      flex-shrink: 0;
       user-select: none;
     }
 
@@ -186,7 +178,7 @@
 
     .dots {
       display: flex;
-      gap: 9px;
+      gap: 8px;
       align-items: center;
     }
 
@@ -203,14 +195,13 @@
       transform: scale(1.6);
     }
 
-    /* ── Keyboard hint ───────────────────────────────── */
     .kbd-hint {
       position: fixed;
-      bottom: 26px;
+      bottom: 22px;
       right: 52px;
       font-family: Arial, sans-serif;
       font-size: 9px;
-      color: rgba(255,255,255,0.13);
+      color: rgba(255,255,255,0.12);
       letter-spacing: 2px;
       text-transform: uppercase;
       pointer-events: none;
@@ -238,164 +229,110 @@
 
   <div class="slideshow" id="slideshow"></div>
 
-  <div class="nav">
-    <button class="nav-btn" id="prev" title="Previous (←)">&#8592;</button>
-    <div class="dots" id="dots"></div>
-    <button class="nav-btn" id="next" title="Next (→)">&#8594;</button>
+  <div class="footer">
+    <div class="font-info">
+      <div class="font-tag"  id="font-tag"></div>
+      <div class="font-note" id="font-note"></div>
+    </div>
+    <div class="nav">
+      <button class="nav-btn" id="prev">&#8592;</button>
+      <div class="dots" id="dots"></div>
+      <button class="nav-btn" id="next">&#8594;</button>
+    </div>
   </div>
 
   <span class="kbd-hint">← → to navigate</span>
 
   <script>
+    /* ── Inline favicon SVG (white paths, transparent bg) ── */
     const FAVICON_SVG = `<svg width="565" height="565" viewBox="0 0 565 565" fill="none" xmlns="http://www.w3.org/2000/svg">
-<mask id="m0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493">
-<path d="M11 2H422.432V494.407H11V2Z" fill="white"/>
-</mask>
-<g mask="url(#m0)">
-<mask id="m1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490">
-<path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/>
-</mask>
-<g mask="url(#m1)">
-<mask id="m2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="0" width="413" height="495">
-<path d="M423.158 0.754395H11V494.41H423.158V0.754395Z" fill="white"/>
-</mask>
-<g mask="url(#m2)">
-<mask id="m3" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="3" width="412" height="491">
-<path d="M11.5039 3.07666H422.431V493.081H11.5039V3.07666Z" fill="white"/>
-</mask>
-<g mask="url(#m3)">
-<mask id="m4" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490">
-<path d="M422.178 3.69434L381.486 74.2843L366.223 100.744C364.265 100.633 362.277 100.601 360.319 100.601H99.0115V190.87H314.261L208.254 374.711H182.636V235.206H99.0115V464.932H156.261L140.129 492.909H12.1035V3.69434H422.178Z" fill="white"/>
-</mask>
-<g mask="url(#m4)">
-<path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/>
-</g></g></g></g></g>
-<mask id="m5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491">
-<path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/>
-</mask>
-<g mask="url(#m5)">
-<mask id="m6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490">
-<path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/>
-</mask>
-<g mask="url(#m6)">
-<mask id="m7" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="140" y="73" width="413" height="495">
-<path d="M552.463 73.5854H140.305V567.241H552.463V73.5854Z" fill="white"/>
-</mask>
-<g mask="url(#m7)">
-<mask id="m8" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491">
-<path d="M141.82 73.5854H552.463V563.495H141.82V73.5854Z" fill="white"/>
-</mask>
-<g mask="url(#m8)">
-<mask id="m9" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490">
-<path d="M552.149 74.2808V563.495H142.248L182.971 492.905L199.071 464.928H360.323C425.559 464.928 478.468 411.962 478.468 346.62V218.906C478.468 169.101 447.768 126.52 404.266 109.038L424.312 74.2808H552.149Z" fill="white"/>
-</mask>
-<g mask="url(#m9)">
-<path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/>
-</g></g></g></g></g>
-<mask id="m10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188">
-<path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/>
-</mask>
-<g mask="url(#m10)">
-<mask id="m11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185">
-<path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/>
-</mask>
-<g mask="url(#m11)">
-<mask id="m12" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="249" y="186" width="142" height="192">
-<path d="M390.829 186.886H249.402V377.065H390.829V186.886Z" fill="white"/>
-</mask>
-<g mask="url(#m12)">
-<mask id="m13" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="190" width="141" height="186">
-<path d="M250.953 190.206H390.833V375.406H250.953V190.206Z" fill="white"/>
-</mask>
-<g mask="url(#m13)">
-<mask id="m14" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185">
-<path d="M390.686 212.175V353.703C390.686 365.304 381.294 374.709 369.709 374.709H251.074L350.957 201.506C354.777 194.915 361.785 190.837 369.409 190.837C381.184 190.837 390.717 200.4 390.717 212.175" fill="white"/>
-</mask>
-<g mask="url(#m14)">
-<path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/>
-</g></g></g></g></g>
+<mask id="fa0" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="2" width="412" height="493">
+<path d="M11 2H422.432V494.407H11V2Z" fill="white"/></mask>
+<g mask="url(#fa0)">
+<mask id="fa1" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490">
+<path d="M422.184 3.69385L381.492 74.2838L366.229 100.743C364.271 100.633 362.283 100.601 360.325 100.601H99.0173V190.87H314.267L208.26 374.71H182.642V235.206H99.0173V464.931H156.267L140.135 492.908H12.1094V3.69385H422.184Z" fill="white"/></mask>
+<g mask="url(#fa1)">
+<mask id="fa2" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="0" width="413" height="495">
+<path d="M423.158 0.754395H11V494.41H423.158V0.754395Z" fill="white"/></mask>
+<g mask="url(#fa2)">
+<mask id="fa3" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="11" y="3" width="412" height="491">
+<path d="M11.5039 3.07666H422.431V493.081H11.5039V3.07666Z" fill="white"/></mask>
+<g mask="url(#fa3)">
+<mask id="fa4" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="12" y="3" width="411" height="490">
+<path d="M422.178 3.69434L381.486 74.2843L366.223 100.744C364.265 100.633 362.277 100.601 360.319 100.601H99.0115V190.87H314.261L208.254 374.711H182.636V235.206H99.0115V464.932H156.261L140.129 492.909H12.1035V3.69434H422.178Z" fill="white"/></mask>
+<g mask="url(#fa4)"><path d="M2797.04 -142.243H-515.252V714.29H2797.04V-142.243Z" fill="white"/></g>
+</g></g></g></g>
+<mask id="fa5" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491">
+<path d="M141.824 73.5845H552.467V564H141.824V73.5845Z" fill="white"/></mask>
+<g mask="url(#fa5)">
+<mask id="fa6" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490">
+<path d="M552.149 74.2798V563.494H142.248L182.971 492.904L199.071 464.927H360.323C425.559 464.927 478.468 411.961 478.468 346.619V218.905C478.468 169.101 447.768 126.519 404.266 109.037L424.312 74.2798H552.149Z" fill="white"/></mask>
+<g mask="url(#fa6)">
+<mask id="fa7" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="140" y="73" width="413" height="495">
+<path d="M552.463 73.5854H140.305V567.241H552.463V73.5854Z" fill="white"/></mask>
+<g mask="url(#fa7)">
+<mask id="fa8" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="141" y="73" width="412" height="491">
+<path d="M141.82 73.5854H552.463V563.495H141.82V73.5854Z" fill="white"/></mask>
+<g mask="url(#fa8)">
+<mask id="fa9" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="142" y="74" width="411" height="490">
+<path d="M552.149 74.2808V563.495H142.248L182.971 492.905L199.071 464.928H360.323C425.559 464.928 478.468 411.962 478.468 346.62V218.906C478.468 169.101 447.768 126.52 404.266 109.038L424.312 74.2808H552.149Z" fill="white"/></mask>
+<g mask="url(#fa9)"><path d="M2797.04 -142.247H-515.25V714.286H2797.04V-142.247Z" fill="white"/></g>
+</g></g></g></g>
+<mask id="fa10" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="189" width="141" height="188">
+<path d="M250.953 189.333H390.833V376.666H250.953V189.333Z" fill="white"/></mask>
+<g mask="url(#fa10)">
+<mask id="fa11" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185">
+<path d="M390.69 212.172V353.7C390.69 365.302 381.298 374.706 369.712 374.706H251.078L350.961 201.503C354.781 194.912 361.789 190.834 369.413 190.834C381.188 190.834 390.721 200.397 390.721 212.172" fill="white"/></mask>
+<g mask="url(#fa11)">
+<mask id="fa12" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="249" y="186" width="142" height="192">
+<path d="M390.829 186.886H249.402V377.065H390.829V186.886Z" fill="white"/></mask>
+<g mask="url(#fa12)">
+<mask id="fa13" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="250" y="190" width="141" height="186">
+<path d="M250.953 190.206H390.833V375.406H250.953V190.206Z" fill="white"/></mask>
+<g mask="url(#fa13)">
+<mask id="fa14" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="251" y="190" width="140" height="185">
+<path d="M390.686 212.175V353.703C390.686 365.304 381.294 374.709 369.709 374.709H251.074L350.957 201.506C354.777 194.915 361.785 190.837 369.409 190.837C381.184 190.837 390.717 200.4 390.717 212.175" fill="white"/></mask>
+<g mask="url(#fa14)"><path d="M2797.04 -142.244H-515.252V714.289H2797.04V-142.244Z" fill="white"/></g>
+</g></g></g></g>
 </svg>`;
 
+    /* ── Font list ───────────────────────────────────────────── */
     const fonts = [
-      {
-        cls: 'f-bebas',
-        name: 'Bebas Neue',
-        note: 'Bold condensed display — closest to the current logo style'
-      },
-      {
-        cls: 'f-barlow',
-        name: 'Barlow Condensed ExtraBold',
-        note: 'Geometric condensed, clean and modern — slight softness vs. Bebas'
-      },
-      {
-        cls: 'f-oswald',
-        name: 'Oswald Bold',
-        note: 'Classic condensed sans-serif — versatile and professional'
-      },
-      {
-        cls: 'f-saira',
-        name: 'Saira Condensed ExtraBold',
-        note: 'Technical / industrial personality — condensed with sharp edges'
-      },
-      {
-        cls: 'f-teko',
-        name: 'Teko SemiBold',
-        note: 'Condensed display with unique letterform cuts — open tracking'
-      },
-      {
-        cls: 'f-fjalla',
-        name: 'Fjalla One',
-        note: 'High-contrast condensed — strong editorial and signage presence'
-      },
-      {
-        cls: 'f-saira-xc',
-        name: 'Saira Extra Condensed Black',
-        note: 'Ultra-tight condensed — maximum compression, bold statement'
-      },
-      {
-        cls: 'f-exo',
-        name: 'Exo 2 Black',
-        note: 'Geometric with tech personality — angled terminals, futuristic'
-      },
-      {
-        cls: 'f-michroma',
-        name: 'Michroma',
-        note: 'Geometric monoline — industrial and architectural, unique cut-ins'
-      },
-      {
-        cls: 'f-russo',
-        name: 'Russo One',
-        note: 'Bold industrial display — solid, direct, no-nonsense weight'
-      },
+      { cls: 'f-bebas',    name: 'Bebas Neue',                  note: 'Bold condensed display — closest to the current logo style' },
+      { cls: 'f-barlow',   name: 'Barlow Condensed ExtraBold',  note: 'Geometric condensed, clean and modern — slight softness vs. Bebas' },
+      { cls: 'f-oswald',   name: 'Oswald Bold',                 note: 'Classic condensed sans-serif — versatile and professional' },
+      { cls: 'f-saira',    name: 'Saira Condensed ExtraBold',   note: 'Technical / industrial personality — condensed with sharp edges' },
+      { cls: 'f-teko',     name: 'Teko SemiBold',               note: 'Condensed display with unique letterform cuts — open tracking' },
+      { cls: 'f-fjalla',   name: 'Fjalla One',                  note: 'High-contrast condensed — strong editorial and signage presence' },
+      { cls: 'f-saira-xc', name: 'Saira Extra Condensed Black', note: 'Ultra-tight condensed — maximum compression, bold statement' },
+      { cls: 'f-exo',      name: 'Exo 2 Black',                 note: 'Geometric with tech personality — angled terminals, futuristic' },
+      { cls: 'f-michroma', name: 'Michroma',                    note: 'Geometric monoline — industrial and architectural, unique cut-ins' },
+      { cls: 'f-russo',    name: 'Russo One',                   note: 'Bold industrial display — solid, direct, no-nonsense weight' },
     ];
 
+    /* ── DOM refs ────────────────────────────────────────────── */
     const slideshowEl = document.getElementById('slideshow');
     const dotsEl      = document.getElementById('dots');
     const counterEl   = document.getElementById('counter');
+    const fontTagEl   = document.getElementById('font-tag');
+    const fontNoteEl  = document.getElementById('font-note');
     let current  = 0;
     let animating = false;
 
-    // Build slides
+    /* ── Build slides ────────────────────────────────────────── */
     fonts.forEach((font, i) => {
       const slide = document.createElement('div');
       slide.className = 'slide' + (i === 0 ? ' active' : '');
       slide.innerHTML = `
         <div class="logo-combo">
           <div class="favicon-icon">${FAVICON_SVG}</div>
-          <div class="combo-divider"></div>
-          <div class="text-stack">
-            <div class="dinal-word ${font.cls}">DINAL</div>
-          </div>
-        </div>
-        <div class="font-info">
-          <div class="font-tag">${font.name}</div>
-          <div class="font-note">${font.note}</div>
+          <div class="dinal-word ${font.cls}">DINAL</div>
         </div>
       `;
       slideshowEl.appendChild(slide);
     });
 
-    // Build dots
+    /* ── Build dots ──────────────────────────────────────────── */
     const dotEls = fonts.map((_, i) => {
       const dot = document.createElement('div');
       dot.className = 'dot' + (i === 0 ? ' active' : '');
@@ -406,22 +343,59 @@
 
     const slides = document.querySelectorAll('.slide');
 
+    /* Set initial footer labels */
+    fontTagEl.textContent  = fonts[0].name;
+    fontNoteEl.textContent = fonts[0].note;
+
+    /* ── Proportional sizing via Canvas ──────────────────────── */
+    /*
+     * logo.svg (2619×823): D mark spans full height (~823px).
+     * We want the cap height of DINAL text = displayed height of favicon (220px).
+     *
+     * Strategy: set each font to TEST_PX, measure its actual cap height using
+     * Canvas measureText().actualBoundingBoxAscent (pixels above baseline for
+     * the rendered glyphs — i.e. the true visual cap height), then scale
+     * font-size proportionally so cap height hits exactly ICON_HEIGHT_PX.
+     */
+    const ICON_HEIGHT_PX = 220;
+
+    document.fonts.ready.then(() => {
+      const canvas  = document.createElement('canvas');
+      const ctx     = canvas.getContext('2d');
+      const TEST_PX = 600;
+
+      document.querySelectorAll('.dinal-word').forEach(el => {
+        const cs         = window.getComputedStyle(el);
+        const fontFamily = cs.fontFamily;
+        const fontWeight = cs.fontWeight;
+
+        ctx.font = `${fontWeight} ${TEST_PX}px ${fontFamily}`;
+        const capHeight  = ctx.measureText('DINAL').actualBoundingBoxAscent;
+        const targetSize = TEST_PX * (ICON_HEIGHT_PX / capHeight);
+
+        el.style.fontSize   = targetSize + 'px';
+        el.style.lineHeight = '1';
+      });
+    });
+
+    /* ── Navigation ──────────────────────────────────────────── */
     function goTo(idx) {
       if (animating) return;
       const next = ((idx % fonts.length) + fonts.length) % fonts.length;
       if (next === current) return;
       animating = true;
 
-      // Crossfade: bring new on top, fade old out simultaneously
       slides[next].classList.add('active');
       dotEls[next].classList.add('active');
 
       requestAnimationFrame(() => {
         slides[current].classList.remove('active');
         dotEls[current].classList.remove('active');
-        counterEl.textContent = String(next + 1).padStart(2, '0') + ' / ' + fonts.length;
         current = next;
-        setTimeout(() => { animating = false; }, 520);
+        counterEl.textContent  = String(current + 1).padStart(2, '0') + ' / ' + fonts.length;
+        fontTagEl.textContent  = fonts[current].name;
+        fontNoteEl.textContent = fonts[current].note;
+        setTimeout(() => { animating = false; }, 540);
       });
     }
 
