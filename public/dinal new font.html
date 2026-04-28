@@ -81,14 +81,14 @@
 
     /*
      * Logo combo: D-mark icon + DINAL text.
-     * align-items: flex-end → both bottom-aligned so the text baseline
-     * sits at the same level as the D mark bottom, matching the logo.
+     * align-items: center → text is vertically centered with D mark (the DINAL
+     * text in logo.svg sits y=147..685 within 823px, center ≈ 416 vs D center 411.5).
      * Gap (56px) mirrors the logo's proportional whitespace between D mark
      * right edge (x≈793) and DINAL text start (x=1001): 208/823 × 220 ≈ 56px.
      */
     .logo-combo {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       gap: 56px;
     }
 
@@ -349,15 +349,17 @@
 
     /* ── Proportional sizing via Canvas ──────────────────────── */
     /*
-     * logo.svg (2619×823): D mark spans full height (~823px).
-     * We want the cap height of DINAL text = displayed height of favicon (220px).
+     * logo.svg (2619×823):
+     *   D mark spans the full 823px height.
+     *   DINAL text occupies y=147..685 → 538px → 65.4% of D mark height.
+     *   Text is approximately vertically centered within the D mark.
      *
-     * Strategy: set each font to TEST_PX, measure its actual cap height using
-     * Canvas measureText().actualBoundingBoxAscent (pixels above baseline for
-     * the rendered glyphs — i.e. the true visual cap height), then scale
-     * font-size proportionally so cap height hits exactly ICON_HEIGHT_PX.
+     * Strategy: set each font to TEST_PX, measure its true cap height via
+     * Canvas measureText().actualBoundingBoxAscent, then scale font-size so
+     * the cap height equals exactly ICON_HEIGHT_PX × (538/823).
      */
-    const ICON_HEIGHT_PX = 220;
+    const ICON_HEIGHT_PX    = 220;
+    const TARGET_CAP_HEIGHT = ICON_HEIGHT_PX * (538 / 823); // ≈ 144px
 
     document.fonts.ready.then(() => {
       const canvas  = document.createElement('canvas');
@@ -371,7 +373,7 @@
 
         ctx.font = `${fontWeight} ${TEST_PX}px ${fontFamily}`;
         const capHeight  = ctx.measureText('DINAL').actualBoundingBoxAscent;
-        const targetSize = TEST_PX * (ICON_HEIGHT_PX / capHeight);
+        const targetSize = TEST_PX * (TARGET_CAP_HEIGHT / capHeight);
 
         el.style.fontSize   = targetSize + 'px';
         el.style.lineHeight = '1';
