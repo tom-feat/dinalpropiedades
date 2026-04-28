@@ -372,11 +372,26 @@
         const fontWeight = cs.fontWeight;
 
         ctx.font = `${fontWeight} ${TEST_PX}px ${fontFamily}`;
-        const capHeight  = ctx.measureText('DINAL').actualBoundingBoxAscent;
-        const targetSize = TEST_PX * (TARGET_CAP_HEIGHT / capHeight);
+        const m          = ctx.measureText('DINAL');
+        const capHeight  = m.actualBoundingBoxAscent; // true visual cap height above baseline
+        const fontAscent = m.fontBoundingBoxAscent;   // baseline position from top of line box
 
+        // Scale so visual cap height = TARGET_CAP_HEIGHT
+        const targetSize = TEST_PX * (TARGET_CAP_HEIGHT / capHeight);
         el.style.fontSize   = targetSize + 'px';
         el.style.lineHeight = '1';
+
+        // align-items:center centers the element box, not the visual caps.
+        // Each font has different internal metrics (ascender space, descender space),
+        // so caps land at different heights. Fix: calculate where the cap center sits
+        // within the element, then translateY so it lands at the element's midpoint.
+        //
+        // Cap center from element top = fontAscent - capHeight/2
+        // Desired cap center          = TEST_PX/2  (element midpoint with line-height:1)
+        // Required shift (+ = down)  = TEST_PX/2 - (fontAscent - capHeight/2)
+        const capCenterFromTop = fontAscent - capHeight / 2;
+        const rawShift         = TEST_PX / 2 - capCenterFromTop;
+        el.style.transform = `translateY(${rawShift * (targetSize / TEST_PX)}px)`;
       });
     });
 
